@@ -12,12 +12,8 @@ class CalendarEventController extends Controller
 {
     public function index(Request $request)
     {
-        $area = Location::where('code', 'FL-005')->value('id');
-
         return Inertia::render('Calendar/Index', [
-            'venues' => $area
-                ? Location::where('parent_id', $area)->where('type', 'room')->orderBy('name')->get(['id', 'name', 'code'])
-                : [],
+            'venues' => Location::where('type', 'room')->orderBy('name')->get(['id', 'name', 'code']),
         ]);
     }
 
