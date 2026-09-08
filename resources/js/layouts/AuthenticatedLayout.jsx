@@ -145,7 +145,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                     </>
                 )}
 
-                <div className="max-w-lg mx-auto flex justify-around">
+                <div className="max-w-lg mx-auto flex justify-around overflow-x-auto overflow-y-hidden scrollbar-none">
                     {tabs.map((tab) => {
                         const TabIcon = tab.icon;
                         const isActive = tab.children
@@ -158,7 +158,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                                 onClick={() =>
                                     setOpenGroup(openGroup?.name === tab.name ? null : tab)
                                 }
-                                className="flex flex-col items-center gap-0.5 py-2 px-3 text-xs"
+                                className="shrink-0 flex flex-col items-center gap-0.5 py-2 px-3 text-xs whitespace-nowrap"
                             >
                                 <span className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-50' : ''}`}>
                                     <TabIcon size={20} className={isActive ? 'text-brand-600' : 'text-gray-400'} />
@@ -169,7 +169,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                             <Link
                                 key={tab.name}
                                 href={tab.href}
-                                className="flex flex-col items-center gap-0.5 py-2 px-3 text-xs"
+                                className="shrink-0 flex flex-col items-center gap-0.5 py-2 px-3 text-xs whitespace-nowrap"
                             >
                                 <span className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-50' : ''}`}>
                                     <TabIcon size={20} className={isActive ? 'text-brand-600' : 'text-gray-400'} />
