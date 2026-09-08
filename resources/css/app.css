@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand: teal (primary, engineering/tools feel) */
+    --color-brand-50: #E1F5EE;
+    --color-brand-100: #9FE1CB;
+    --color-brand-200: #5DCAA5;
+    --color-brand-300: #3AB58C;
+    --color-brand-400: #1D9E75;
+    --color-brand-500: #148363;
+    --color-brand-600: #0F6E56;
+    --color-brand-700: #0B5A48;
+    --color-brand-800: #085041;
+    --color-brand-900: #04342C;
+
+    /* Accent: coral (secondary, warm highlight) */
+    --color-accent-50: #FAECE7;
+    --color-accent-100: #F5C4B3;
+    --color-accent-200: #F0997B;
+    --color-accent-300: #E37752;
+    --color-accent-400: #D85A30;
+    --color-accent-500: #B84726;
+    --color-accent-600: #993C1D;
+    --color-accent-700: #7F311A;
+    --color-accent-800: #712B13;
+    --color-accent-900: #4A1B0C;
+
+    /* Semantic: pending/warning */
+    --color-warn-50: #FAEEDA;
+    --color-warn-100: #FAC775;
+    --color-warn-400: #BA7517;
+    --color-warn-600: #854F0B;
+    --color-warn-900: #412402;
+
+    /* Semantic: success/done */
+    --color-ok-50: #EAF3DE;
+    --color-ok-100: #C0DD97;
+    --color-ok-400: #639922;
+    --color-ok-600: #3B6D11;
+    --color-ok-900: #173404;
+
+    /* Semantic: urgent/overdue */
+    --color-danger-50: #FCEBEB;
+    --color-danger-100: #F7C1C1;
+    --color-danger-400: #E24B4A;
+    --color-danger-600: #A32D2D;
+    --color-danger-900: #501313;
+
+    /* App background — warm off-white instead of cold gray */
+    --color-app-bg: #FAF9F6;
+}
+
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .print-sheet,
+    .print-sheet * {
+        visibility: visible;
+    }
+
+    .print-sheet {
+        position: relative;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: none;
+        page-break-after: always;
+    }
+
+    .print-sheet:last-child {
+        page-break-after: auto;
+    }
+}
+
+
