@@ -3,29 +3,98 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
+use App\Models\Tenant;
+use App\Services\MidtransService;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class SubscriptionsController extends Controller
 {
-    public function index()
+    public function index(MidtransService $midtrans)
     {
         $subscription = Subscription::where('tenant_id', TenantContext::id())->first();
 
-        return Inertia::render('Billing', ['subscription' => $subscription]);
+        return Inertia::render('Billing', [
+            'subscription' => $subscription,
+            'midtrans' => [
+                'configured' => $midtrans->isConfigured(),
+                'client_key' => $midtrans->clientKey(),
+                'is_production' => $midtrans->isProduction(),
+                'plans' => ['starter' => 350000, 'professional' => 850000, 'enterprise' => 2000000],
+            ],
+        ]);
     }
 
-    /**
-     * Payment provider webhook (provider-agnostic shape).
-     * Expected JSON: { "type": "payment.success|payment.failed|subscription.canceled",
-     *                  "data": { "tenant_id":.., "plan":.., "amount":.., "currency":..,
-     *                            "provider_subscription_id":.., "current_period_end":.. } }
-     */
-    public function webhook(Request $request)
+    public function checkout(Request $request, MidtransService $midtrans)
     {
-        $type = $request->input('type');
-        $data = $request->input('data', []);
+        $plan = $request->validate(['plan' => ['required', 'in:starter,professional,enterprise']])['plan'];
+
+        if (! $midtrans->isConfigured()) {
+            return back()->withErrors(['plan' => 'Payment gateway is not configured yet.']);
+        }
+
+        $tenant = Tenant::find(TenantContext::id());
+        $user = $request->user();
+
+        $tx = $midtrans->createSnapTransaction(
+            $tenant->id, $tenant->name, $user->name, $user->email, $plan,
+        );
+
+        if (! $tx) {
+            return back()->withErrors(['plan' => 'Could not create Midtrans payment. Check keys and outbound access.']);
+        }
+
+        $subscription = Subscription::where('tenant_id', TenantContext::id())->first();
+
+        return Inertia::render('Billing', [
+            'subscription' => $subscription,
+            'midtrans' => [
+                'configured' => true,
+                'client_key' => $midtrans->clientKey(),
+                'is_production' => $midtrans->isProduction(),
+                'plans' => ['starter' => 350000, 'professional' => 850000, 'enterprise' => 2000000],
+            ],
+            'snap_token' => $tx['token'],
+            'snap_redirect' => $tx['redirect_url'],
+        ]);
+    }
+
+    public function webhook(Request $request, MidtransService $midtrans)
+    {
+        $payload = $request->all();
+
+        // Midtrans notification (signed with SHA512 signature_key)
+        if (isset($payload['signature_key'])) {
+            if (! $midtrans->verifyNotificationSignature($payload)) {
+                return response()->json(['ok' => false], 401);
+            }
+
+            $tenantId = $midtrans->parseTenantId((string) ($payload['order_id'] ?? ''));
+            $status = $midtrans->mapStatus($payload);
+
+            if ($tenantId && $status) {
+                $sub = Subscription::firstOrCreate(['tenant_id' => $tenantId], [
+                    'plan' => 'professional',
+                    'status' => 'trial',
+                    'provider' => 'midtrans',
+                ]);
+                $sub->update([
+                    'status' => $status,
+                    'provider' => 'midtrans',
+                    'provider_subscription_id' => $payload['order_id'] ?? null,
+                    'amount' => $payload['gross_amount'] ?? $sub->amount,
+                    'currency' => 'IDR',
+                    'current_period_end' => $status === 'active' ? now()->addMonth() : $sub->current_period_end,
+                ]);
+            }
+
+            return response()->json(['ok' => true]);
+        }
+
+        // Generic fallback (test/mock): { "type": "...", "data": { "tenant_id": .. } }
+        $type = $payload['type'] ?? null;
+        $data = $payload['data'] ?? [];
         $tenantId = $data['tenant_id'] ?? null;
 
         $status = match ($type) {
