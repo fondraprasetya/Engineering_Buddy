@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('maintenance:roll')->dailyAt('00:01');
 Schedule::command('maintenance:process')->dailyAt('00:02');
+Schedule::command('billing:expire-trials')->hourly();
