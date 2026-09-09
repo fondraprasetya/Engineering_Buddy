@@ -13,13 +13,14 @@ class Subscription extends Model
     protected $fillable = [
         'tenant_id', 'plan', 'status', 'provider', 'provider_customer_id',
         'provider_subscription_id', 'trial_ends_at', 'current_period_start',
-        'current_period_end', 'amount', 'currency',
+        'current_period_end', 'reminder_sent_at', 'amount', 'currency',
     ];
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
         'current_period_start' => 'datetime',
         'current_period_end' => 'datetime',
+        'reminder_sent_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
 

@@ -26,6 +26,8 @@ class NotificationService
         'store_request_approved' => "✅ Store Request #:request_id — Approved\n\n<b>Item:</b> :item_name\n<b>Quantity Requested:</b> :qty pcs\n<b>Quantity Approved:</b> :qty_approved pcs\n<b>Approved by:</b> :approved_by\n<b>Status:</b> Awaiting Fulfillment",
         'store_request_fulfilled' => "📦 Store Request #:request_id — Fulfilled\n\n<b>Item:</b> :item_name\n<b>Quantity:</b> :qty pcs\n<b>Fulfilled by:</b> :fulfilled_by\n<b>Status:</b> Completed",
         'store_request_rejected' => "❌ Store Request #:request_id — Rejected\n\n<b>Item:</b> :item_name\n<b>Quantity:</b> :qty pcs\n<b>Rejected by:</b> :rejected_by\n<b>Status:</b> Rejected",
+        'billing_trial_ending' => "⏳ Your Engineering Buddy <b>trial</b> ends in <b>:days day(s)</b>.\n\nUpgrade now to keep your facility running. Log in and subscribe from the Billing page.",
+        'billing_past_due' => "🔴 Your Engineering Buddy subscription is inactive.\n\nResume or upgrade your plan to restore access. Log in and visit the Billing page.",
     ];
 
     public function __construct(
