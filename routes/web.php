@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActualExpenseController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegisteredController;
 use App\Http\Controllers\CalendarEventController;
 use App\Http\Controllers\ChecklistTemplateController;
 use App\Http\Controllers\DailyLogController;
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'create'])->name('login');
     Route::post('login', [AuthController::class, 'store'])->middleware('throttle:login');
+    Route::get('register', [RegisteredController::class, 'create'])->name('register');
+    Route::post('register', [RegisteredController::class, 'store'])->middleware('throttle:login');
 });
 
 Route::middleware('auth')->group(function () {
