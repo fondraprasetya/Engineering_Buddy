@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RosterEntry extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = ['user_id', 'date', 'shift', 'time_blocks', 'notes', 'created_by'];
 
     protected function casts(): array

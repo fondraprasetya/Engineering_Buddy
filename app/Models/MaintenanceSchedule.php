@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -8,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MaintenanceSchedule extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'title', 'asset_id', 'checklist_template_id', 'frequency_type',
         'frequency_value', 'next_due_date', 'default_technician_id',

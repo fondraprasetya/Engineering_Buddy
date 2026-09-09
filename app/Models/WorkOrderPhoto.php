@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WorkOrderPhoto extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = ['work_order_id', 'photo_path', 'type'];
 
     public function workOrder(): BelongsTo

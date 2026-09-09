@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StoreRequest extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'item_id', 'work_order_id', 'requested_by', 'qty_requested', 'qty_approved',
         'status', 'request_date', 'notes', 'approved_by', 'approved_at',

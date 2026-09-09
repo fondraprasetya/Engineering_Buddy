@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -8,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WorkOrder extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'requester_id', 'asset_id', 'location_id', 'project_id', 'checklist_template_id', 'title', 'description',
         'technician_notes', 'photo', 'completion_photo', 'technician_rating', 'priority', 'status', 'actual_cost', 'completion_target_date', 'completed_at',

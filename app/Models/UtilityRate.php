@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Model;
 
 class UtilityRate extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'type', 'cost_per_unit', 'unit', 'start_date', 'end_date', 'notes', 'is_active',
     ];

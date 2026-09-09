@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToTenant;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Support\Str;
 
 class ChecklistField extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = ['template_id', 'page', 'label', 'field_type', 'required', 'sort_order', 'x', 'y', 'width', 'photo'];
 
     protected function casts(): array
