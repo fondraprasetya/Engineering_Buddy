@@ -7,10 +7,13 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TechnicianController;
 use App\Http\Controllers\Api\TelegramController;
 use App\Http\Controllers\Api\WorkOrderController;
+use App\Http\Controllers\SubscriptionsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('v1/assets/{asset}/history', AssetHistoryController::class);
 Route::put('v1/dashboard/settings', [DashboardSettingsController::class, 'update']);
+
+Route::post('v1/billing/webhook', [SubscriptionsController::class, 'webhook']);
 
 Route::prefix('v1')->group(function () {
     Route::get('projects', [ProjectController::class, 'index']);

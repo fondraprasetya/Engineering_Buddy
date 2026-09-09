@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckPlan;
+use App\Http\Middleware\CheckSubscription;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Auth\AuthenticationException;
@@ -26,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
             ResolveTenant::class,
+            CheckSubscription::class,
         ]);
 
         $middleware->api(prepend: [
@@ -39,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'permission' => CheckPermission::class,
+            'plan' => CheckPlan::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

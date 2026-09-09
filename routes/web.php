@@ -4,6 +4,7 @@ use App\Http\Controllers\ActualExpenseController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisteredController;
+use App\Http\Controllers\SubscriptionsController;
 use App\Http\Controllers\CalendarEventController;
 use App\Http\Controllers\ChecklistTemplateController;
 use App\Http\Controllers\DailyLogController;
@@ -33,6 +34,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
+    Route::get('billing', [SubscriptionsController::class, 'index'])->name('billing');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::redirect('/', '/dashboard');
 
@@ -73,14 +75,16 @@ Route::middleware('auth')->group(function () {
     Route::get('daily-logs/create', [DailyLogController::class, 'create'])->name('daily-logs.create');
     Route::post('daily-logs', [DailyLogController::class, 'store'])->name('daily-logs.store');
 
-    Route::get('utilities', [DailyUtilityController::class, 'index'])->name('utilities.index');
-    Route::get('utilities/export', [DailyUtilityController::class, 'export'])->name('utilities.export');
-    Route::post('utilities/import', [DailyUtilityController::class, 'import'])->name('utilities.import');
-    Route::get('utilities/create', [DailyUtilityController::class, 'create'])->name('utilities.create');
-    Route::post('utilities', [DailyUtilityController::class, 'store'])->name('utilities.store');
-    Route::get('utilities/{dailyUtility}/edit', [DailyUtilityController::class, 'edit'])->name('utilities.edit');
-    Route::put('utilities/{dailyUtility}', [DailyUtilityController::class, 'update'])->name('utilities.update');
-    Route::get('utilities/previous-stand', [DailyUtilityController::class, 'previousStand'])->name('utilities.previous-stand');
+    Route::middleware('plan:utilities')->group(function () {
+        Route::get('utilities', [DailyUtilityController::class, 'index'])->name('utilities.index');
+        Route::get('utilities/export', [DailyUtilityController::class, 'export'])->name('utilities.export');
+        Route::post('utilities/import', [DailyUtilityController::class, 'import'])->name('utilities.import');
+        Route::get('utilities/create', [DailyUtilityController::class, 'create'])->name('utilities.create');
+        Route::post('utilities', [DailyUtilityController::class, 'store'])->name('utilities.store');
+        Route::get('utilities/{dailyUtility}/edit', [DailyUtilityController::class, 'edit'])->name('utilities.edit');
+        Route::put('utilities/{dailyUtility}', [DailyUtilityController::class, 'update'])->name('utilities.update');
+        Route::get('utilities/previous-stand', [DailyUtilityController::class, 'previousStand'])->name('utilities.previous-stand');
+    });
 
     Route::get('utility-rates', [UtilityRateController::class, 'index'])->name('utility-rates.index');
     Route::get('utility-rates/create', [UtilityRateController::class, 'create'])->name('utility-rates.create');
@@ -89,13 +93,15 @@ Route::middleware('auth')->group(function () {
     Route::put('utility-rates/{utilityRate}', [UtilityRateController::class, 'update'])->name('utility-rates.update');
     Route::delete('utility-rates/{utilityRate}', [UtilityRateController::class, 'destroy'])->name('utility-rates.destroy');
 
-    Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
-    Route::get('projects/create', [ProjectController::class, 'create'])->name('projects.create');
-    Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
-    Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-    Route::post('projects/{project}/budget-items', [ProjectController::class, 'updateBudgetItems'])->name('projects.budget-items');
-    Route::get('projects/{project}/timeline', [ProjectController::class, 'editTimeline'])->name('projects.timeline.edit');
-    Route::put('projects/{project}/timeline', [ProjectController::class, 'updateTimeline'])->name('projects.timeline.update');
+    Route::middleware('plan:projects')->group(function () {
+        Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
+        Route::get('projects/create', [ProjectController::class, 'create'])->name('projects.create');
+        Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
+        Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+        Route::post('projects/{project}/budget-items', [ProjectController::class, 'updateBudgetItems'])->name('projects.budget-items');
+        Route::get('projects/{project}/timeline', [ProjectController::class, 'editTimeline'])->name('projects.timeline.edit');
+        Route::put('projects/{project}/timeline', [ProjectController::class, 'updateTimeline'])->name('projects.timeline.update');
+    });
 
     Route::get('roster', [RosterController::class, 'index'])->name('roster.index');
     Route::post('roster', [RosterController::class, 'store'])->name('roster.store');
@@ -124,14 +130,16 @@ Route::middleware('auth')->group(function () {
     Route::get('locations/{location}/edit', [LocationController::class, 'edit'])->name('locations.edit');
     Route::post('locations/{location}', [LocationController::class, 'update'])->name('locations.update');
 
-    Route::get('budgets', [MonthlyBudgetController::class, 'index'])->name('budgets.index');
-    Route::get('budgets/create', [MonthlyBudgetController::class, 'create'])->name('budgets.create');
-    Route::post('budgets', [MonthlyBudgetController::class, 'store'])->name('budgets.store');
-    Route::get('budgets/{budget}/edit', [MonthlyBudgetController::class, 'edit'])->name('budgets.edit');
-    Route::put('budgets/{budget}', [MonthlyBudgetController::class, 'update'])->name('budgets.update');
-    Route::get('budgets/export', [MonthlyBudgetController::class, 'export'])->name('budgets.export');
-    Route::post('budgets/import', [MonthlyBudgetController::class, 'import'])->name('budgets.import');
-    Route::delete('budgets/{budget}', [MonthlyBudgetController::class, 'destroy'])->name('budgets.destroy');
+    Route::middleware('plan:budgets')->group(function () {
+        Route::get('budgets', [MonthlyBudgetController::class, 'index'])->name('budgets.index');
+        Route::get('budgets/create', [MonthlyBudgetController::class, 'create'])->name('budgets.create');
+        Route::post('budgets', [MonthlyBudgetController::class, 'store'])->name('budgets.store');
+        Route::get('budgets/{budget}/edit', [MonthlyBudgetController::class, 'edit'])->name('budgets.edit');
+        Route::put('budgets/{budget}', [MonthlyBudgetController::class, 'update'])->name('budgets.update');
+        Route::get('budgets/export', [MonthlyBudgetController::class, 'export'])->name('budgets.export');
+        Route::post('budgets/import', [MonthlyBudgetController::class, 'import'])->name('budgets.import');
+        Route::delete('budgets/{budget}', [MonthlyBudgetController::class, 'destroy'])->name('budgets.destroy');
+    });
 
     Route::get('post-accounts', [PostAccountController::class, 'index'])->name('post-accounts.index');
     Route::get('post-accounts/create', [PostAccountController::class, 'create'])->name('post-accounts.create');
@@ -140,12 +148,14 @@ Route::middleware('auth')->group(function () {
     Route::put('post-accounts/{postAccount}', [PostAccountController::class, 'update'])->name('post-accounts.update');
     Route::delete('post-accounts/{postAccount}', [PostAccountController::class, 'destroy'])->name('post-accounts.destroy');
 
-    Route::get('expenses', [ActualExpenseController::class, 'index'])->name('expenses.index');
-    Route::get('expenses/create', [ActualExpenseController::class, 'create'])->name('expenses.create');
-    Route::post('expenses', [ActualExpenseController::class, 'store'])->name('expenses.store');
-    Route::get('expenses/{expense}/edit', [ActualExpenseController::class, 'edit'])->name('expenses.edit');
-    Route::put('expenses/{expense}', [ActualExpenseController::class, 'update'])->name('expenses.update');
-    Route::delete('expenses/{expense}', [ActualExpenseController::class, 'destroy'])->name('expenses.destroy');
+    Route::middleware('plan:expenses')->group(function () {
+        Route::get('expenses', [ActualExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('expenses/create', [ActualExpenseController::class, 'create'])->name('expenses.create');
+        Route::post('expenses', [ActualExpenseController::class, 'store'])->name('expenses.store');
+        Route::get('expenses/{expense}/edit', [ActualExpenseController::class, 'edit'])->name('expenses.edit');
+        Route::put('expenses/{expense}', [ActualExpenseController::class, 'update'])->name('expenses.update');
+        Route::delete('expenses/{expense}', [ActualExpenseController::class, 'destroy'])->name('expenses.destroy');
+    });
 
     Route::get('store', [StoreController::class, 'index'])->name('store.index');
     Route::get('store/categories', [StoreController::class, 'categories'])->name('store.categories');

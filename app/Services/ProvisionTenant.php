@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Department;
+use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantContext;
@@ -45,6 +46,14 @@ class ProvisionTenant
             }
 
             TenantContext::clear();
+
+            Subscription::create([
+                'tenant_id' => $tenant->id,
+                'plan' => 'trial',
+                'status' => 'trial',
+                'provider' => 'mock',
+                'trial_ends_at' => now()->addDays(14),
+            ]);
 
             return [$tenant, $user];
         });
