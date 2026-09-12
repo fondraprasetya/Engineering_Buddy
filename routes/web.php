@@ -32,13 +32,16 @@ Route::middleware('guest')->group(function () {
     Route::post('register', [RegisteredController::class, 'store'])->middleware('throttle:login');
 });
 
+Route::get('/', fn () => auth()->check()
+    ? redirect('/dashboard')
+    : response()->file(public_path('landing/index.html')))->name('home');
+
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
     Route::get('billing', [SubscriptionsController::class, 'index'])->name('billing');
     Route::post('billing/checkout', [SubscriptionsController::class, 'checkout'])->name('billing.checkout');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('help', fn () => \Inertia\Inertia::render('Help'))->name('help');
-    Route::redirect('/', '/dashboard');
 
     Route::get('work-orders', [WorkOrderController::class, 'index'])->name('work-orders.index');
     Route::get('work-orders/create', [WorkOrderController::class, 'create'])->name('work-orders.create');
