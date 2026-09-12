@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\UtilityRate;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderPhoto;
+use App\Tenancy\TenantContext;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -117,6 +118,8 @@ class TelegramService
 
                 $user = $telegramLink->user;
 
+                TenantContext::set($user->tenant_id);
+
                 if ($this->hasActiveConversation($chatId)) {
                     return $this->handleConversationText($chatId, $user, $text);
                 }
@@ -158,6 +161,8 @@ class TelegramService
                     return null;
                 }
 
+                TenantContext::set($telegramLink->user->tenant_id);
+
                 if ($this->hasActiveConversation($chatId)) {
                     return $this->handleConversationPhoto($chatId, $telegramLink->user, $message['photo']);
                 }
@@ -168,6 +173,8 @@ class TelegramService
                 if (! $telegramLink) {
                     return null;
                 }
+
+                TenantContext::set($telegramLink->user->tenant_id);
 
                 if ($this->hasActiveConversation($chatId)) {
                     return $this->handleConversationDocument($chatId, $telegramLink->user, $message['document']);
@@ -187,6 +194,8 @@ class TelegramService
             ]);
 
             return null;
+        } finally {
+            TenantContext::clear();
         }
     }
 
@@ -833,6 +842,8 @@ class TelegramService
 
             $user = $telegramLink->user;
 
+            TenantContext::set($user->tenant_id);
+
             if (str_starts_with($data, 'priority:')) {
                 $this->editMessageReplyMarkup($chatId, $messageId);
 
@@ -1307,6 +1318,8 @@ class TelegramService
             ]);
 
             return null;
+        } finally {
+            TenantContext::clear();
         }
     }
 
