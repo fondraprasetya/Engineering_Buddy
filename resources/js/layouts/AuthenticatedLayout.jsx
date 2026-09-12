@@ -5,7 +5,7 @@ import Toast from '../components/Toast';
 import {
     Home, Calendar, ClipboardList, CheckCircle2, BarChart3, User,
     Wrench, Package, NotebookPen, FolderOpen, Factory, Wallet,
-    BookText, Users, MapPin, ListChecks, Clock, Zap, Receipt, Bell,
+    BookText, Users, MapPin, ListChecks, Clock, Zap, Receipt, Bell, CircleHelp,
 } from 'lucide-react';
 
 const masterData = {
@@ -116,6 +116,16 @@ export default function AuthenticatedLayout({ auth, children }) {
             </main>
 
             <Toast />
+
+            {!url.startsWith('/help') && (
+                <Link
+                    href="/help"
+                    title="Help & User Manual"
+                    className="fixed bottom-24 right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-brand-600 text-white shadow-lg hover:bg-brand-700 transition-colors"
+                >
+                    <CircleHelp size={24} />
+                </Link>
+            )}
 
             <nav className="bg-white border-t border-brand-50 fixed bottom-0 left-0 right-0 z-30">
                 {openGroup && (
