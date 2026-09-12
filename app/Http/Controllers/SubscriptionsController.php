@@ -92,7 +92,11 @@ class SubscriptionsController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        // Generic fallback (test/mock): { "type": "...", "data": { "tenant_id": .. } }
+        // Generic fallback (test/mock) — local development only. In production
+        // unsigned payloads must never mutate billing state.
+        if (! app()->isLocal()) {
+            abort(404);
+        }
         $type = $payload['type'] ?? null;
         $data = $payload['data'] ?? [];
         $tenantId = $data['tenant_id'] ?? null;

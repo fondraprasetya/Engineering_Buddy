@@ -10,19 +10,19 @@ use App\Http\Controllers\Api\WorkOrderController;
 use App\Http\Controllers\SubscriptionsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('v1/assets/{asset}/history', AssetHistoryController::class);
-Route::put('v1/dashboard/settings', [DashboardSettingsController::class, 'update']);
+Route::get('v1/assets/{asset}/history', AssetHistoryController::class)->middleware('auth');
+Route::put('v1/dashboard/settings', [DashboardSettingsController::class, 'update'])->middleware('auth');
 
 Route::post('v1/billing/webhook', [SubscriptionsController::class, 'webhook']);
 
 Route::prefix('v1')->group(function () {
-    Route::get('projects', [ProjectController::class, 'index']);
-    Route::post('projects', [ProjectController::class, 'store']);
-    Route::get('projects/{project}', [ProjectController::class, 'show']);
-    Route::post('projects/{project}/milestones', [ProjectController::class, 'addMilestone']);
-    Route::put('milestones/{milestone}/status', [ProjectController::class, 'updateMilestoneStatus']);
-    Route::post('milestones/{milestone}/photo', [ProjectController::class, 'uploadMilestonePhoto']);
-    Route::put('projects/{project}/budget-items', [ProjectController::class, 'updateBudgetItems']);
+    Route::get('projects', [ProjectController::class, 'index'])->middleware('auth');
+    Route::post('projects', [ProjectController::class, 'store'])->middleware('auth');
+    Route::get('projects/{project}', [ProjectController::class, 'show'])->middleware('auth');
+    Route::post('projects/{project}/milestones', [ProjectController::class, 'addMilestone'])->middleware('auth');
+    Route::put('milestones/{milestone}/status', [ProjectController::class, 'updateMilestoneStatus'])->middleware('auth');
+    Route::post('milestones/{milestone}/photo', [ProjectController::class, 'uploadMilestonePhoto'])->middleware('auth');
+    Route::put('projects/{project}/budget-items', [ProjectController::class, 'updateBudgetItems'])->middleware('auth');
 
     Route::post('telegram/link', [TelegramController::class, 'link'])->middleware('auth');
     Route::post('telegram/webhook', [TelegramController::class, 'webhook'])->withoutMiddleware('auth');
