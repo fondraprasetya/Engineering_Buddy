@@ -350,6 +350,31 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot>
+                            {[
+                                { label: 'M', shifts: ['morning'], dot: 'bg-yellow-200' },
+                                { label: 'A', shifts: ['afternoon'], dot: 'bg-orange-200' },
+                                { label: 'N', shifts: ['night'], dot: 'bg-indigo-200' },
+                                { label: 'Off', shifts: ['off', 'leave', 'extra_off'], dot: 'bg-gray-300' },
+                            ].map(row => (
+                                <tr key={row.label} className="border-t border-gray-200 bg-gray-50/60">
+                                    <td className="sticky left-0 bg-gray-50 z-10 py-1 px-2 text-[10px] font-semibold text-gray-600 whitespace-nowrap">
+                                        <span className={`inline-block w-2.5 h-2.5 rounded-full ${row.dot} mr-1 align-middle`}></span>{row.label}
+                                    </td>
+                                    {days.map((d, i) => {
+                                        const n = filtered.reduce((c, u) => {
+                                            const s = getEntry(u.id, d.date)?.shift;
+                                            return c + (s && row.shifts.includes(s) ? 1 : 0);
+                                        }, 0);
+                                        return (
+                                            <td key={i} className="text-center py-1 px-0.5 text-[10px] font-semibold text-gray-600">
+                                                {n > 0 ? n : <span className="text-gray-300">–</span>}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tfoot>
                     </table>
                 </div>
 
