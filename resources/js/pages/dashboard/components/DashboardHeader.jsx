@@ -22,6 +22,7 @@ function formatDate() {
 export default function DashboardHeader({ auth, notification_count, weather }) {
     const user = auth?.user;
     const name = user?.name ?? 'User';
+    const tenantName = auth?.tenant?.name ?? '';
     const temp = weather?.temp ?? '--';
     const condition = weather?.condition ?? '';
 
@@ -39,7 +40,9 @@ export default function DashboardHeader({ auth, notification_count, weather }) {
                         <h1 className="text-sm md:text-base font-bold text-gray-900 truncate leading-tight">
                             {getGreeting()}, {name.split(' ')[0]}
                         </h1>
-                        <p className="text-[10px] text-brand-600 font-medium leading-tight">Holiday Inn Cikarang</p>
+                        {tenantName !== '' && (
+                            <p className="text-[10px] text-brand-600 font-medium leading-tight truncate">{tenantName}</p>
+                        )}
                         <div className="flex flex-wrap items-center gap-x-2 text-[8px] md:text-[9px] text-gray-400 leading-tight mt-0.5">
                             <span className="truncate max-w-[120px] md:max-w-none">{formatDate()}</span>
                             <span className="flex items-center gap-0.5 shrink-0"><Clock size={8} />{getShift()}</span>

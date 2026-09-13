@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Department;
 use App\Models\Notification;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,6 +49,9 @@ class HandleInertiaRequests extends Middleware
                     'department' => $request->user()->department?->only('id', 'name'),
                     'roles' => $request->user()->getRoleNames(),
                 ] : null,
+                'tenant' => $request->user() && $request->user()->tenant_id
+                    ? Tenant::where('id', $request->user()->tenant_id)->first()?->only('id', 'name')
+                    : null,
             ],
             'departments' => fn () => $request->user() ? Department::select('id', 'name')->get() : [],
             'notification_count' => fn () => $request->user()
