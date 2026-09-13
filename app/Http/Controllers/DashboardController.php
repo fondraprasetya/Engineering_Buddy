@@ -238,8 +238,9 @@ class DashboardController extends Controller
             ->with(['user.roles'])
             ->get();
 
-        $todayShift = $todayRoster->first()?->shift ?? 'Morning';
-        $teamMembers = $todayRoster->filter(fn ($r) => $r->user)->map(fn ($r) => [
+        $onDutyRoster = $todayRoster->filter(fn ($r) => $r->user && in_array($r->shift, ['morning', 'afternoon', 'night']));
+        $todayShift = $onDutyRoster->countBy('shift')->sortDesc()->keys()->first() ?? 'Morning';
+        $teamMembers = $onDutyRoster->map(fn ($r) => [
             'id' => $r->user->id,
             'name' => $r->user->name,
             'role' => $r->user->roles->first()?->name ?? 'employee',
@@ -518,7 +519,7 @@ class DashboardController extends Controller
                 'recentActivities' => $recentActivities,
                 'topTechnicians' => $topPerformers,
                 'heroOfDay' => [
-                    'shift' => $todayShift,
+                    'shift' => ucfirst($todayShift),
                     'supervisor' => $supervisor['name'] ?? 'N/A',
                     'members' => $teamMembers->pluck('name')->values()->toArray(),
                     'mission' => ! empty($todayMission) ? implode('; ', $todayMission) : 'Routine maintenance & inspections',

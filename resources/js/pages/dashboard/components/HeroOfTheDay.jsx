@@ -26,12 +26,16 @@ export default function HeroOfTheDay({ heroOfTheDay }) {
                     </div>
                 </div>
                 <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-1">Team Members</p>
-                    <div className="flex flex-wrap gap-1.5">
-                        {data.members.map(m => (
-                            <span key={m} className="text-[10px] bg-white rounded-full px-2.5 py-1 text-gray-700 font-medium shadow-sm">{m}</span>
-                        ))}
-                    </div>
+                    <p className="text-xs text-gray-500 mb-1">Team Members (on duty today)</p>
+                    {data.members.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                            {data.members.map(m => (
+                                <span key={m} className="text-[10px] bg-white rounded-full px-2.5 py-1 text-gray-700 font-medium shadow-sm">{m}</span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-[11px] text-gray-400 italic">No crew on duty today.</p>
+                    )}
                 </div>
                 <div>
                     <p className="text-xs text-gray-500 mb-1">Today's Mission</p>
