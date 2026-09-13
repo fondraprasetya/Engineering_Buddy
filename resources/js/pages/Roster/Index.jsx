@@ -157,7 +157,12 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
     const updateBlock = (idx, field, val) => {
         setModal(m => {
             const blocks = [...m.blocks];
-            blocks[idx] = { ...blocks[idx], [field]: val };
+            const updated = { ...blocks[idx], [field]: val };
+            // Auto-follow: changing clock-in defaults clock-out to +9h (still editable)
+            if (field === 'in' && val) {
+                updated.out = addHours(val, 9);
+            }
+            blocks[idx] = updated;
             return { ...m, blocks };
         });
     };
