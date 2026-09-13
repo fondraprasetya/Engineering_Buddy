@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AssetHistoryController;
 use App\Http\Controllers\Api\ChecklistResponseController;
 use App\Http\Controllers\Api\DashboardSettingsController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\RosterController;
 use App\Http\Controllers\Api\TechnicianController;
 use App\Http\Controllers\Api\TelegramController;
 use App\Http\Controllers\Api\WorkOrderController;
@@ -23,6 +24,13 @@ Route::prefix('v1')->group(function () {
     Route::put('milestones/{milestone}/status', [ProjectController::class, 'updateMilestoneStatus'])->middleware('auth');
     Route::post('milestones/{milestone}/photo', [ProjectController::class, 'uploadMilestonePhoto'])->middleware('auth');
     Route::put('projects/{project}/budget-items', [ProjectController::class, 'updateBudgetItems'])->middleware('auth');
+
+    Route::post('roster', [RosterController::class, 'store'])->middleware('auth');
+    Route::delete('roster/{rosterEntry}', [RosterController::class, 'destroy'])->middleware('auth');
+    Route::post('roster/approve', [RosterController::class, 'approve'])->middleware('auth');
+    Route::post('roster/unapprove', [RosterController::class, 'unapprove'])->middleware('auth');
+    Route::post('roster/approve-month', [RosterController::class, 'approveMonth'])->middleware('auth');
+    Route::post('roster/unapprove-month', [RosterController::class, 'unapproveMonth'])->middleware('auth');
 
     Route::post('telegram/link', [TelegramController::class, 'link'])->middleware('auth');
     Route::post('telegram/webhook', [TelegramController::class, 'webhook'])->withoutMiddleware('auth');
