@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { TriangleAlert } from 'lucide-react';
 
 const noBlockShifts = ['off', 'leave', 'extra_off'];
 
@@ -352,10 +353,10 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
                         </tbody>
                         <tfoot>
                             {[
-                                { label: 'M', shifts: ['morning'], dot: 'bg-yellow-200' },
-                                { label: 'A', shifts: ['afternoon'], dot: 'bg-orange-200' },
-                                { label: 'N', shifts: ['night'], dot: 'bg-indigo-200' },
-                                { label: 'Off', shifts: ['off', 'leave', 'extra_off'], dot: 'bg-gray-300' },
+                                { label: 'M', shifts: ['morning'], dot: 'bg-yellow-200', alertWhenZero: true },
+                                { label: 'A', shifts: ['afternoon'], dot: 'bg-orange-200', alertWhenZero: true },
+                                { label: 'N', shifts: ['night'], dot: 'bg-indigo-200', alertWhenZero: true },
+                                { label: 'Off', shifts: ['off', 'leave', 'extra_off'], dot: 'bg-gray-300', alertWhenZero: false },
                             ].map(row => (
                                 <tr key={row.label} className="border-t border-gray-200 bg-gray-50/60">
                                     <td className="sticky left-0 bg-gray-50 z-10 py-1 px-2 text-[10px] font-semibold text-gray-600 whitespace-nowrap">
@@ -368,7 +369,13 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
                                         }, 0);
                                         return (
                                             <td key={i} className="text-center py-1 px-0.5 text-[10px] font-semibold text-gray-600">
-                                                {n > 0 ? n : <span className="text-gray-300">–</span>}
+                                                {n > 0 ? n : row.alertWhenZero ? (
+                                                    <span title={`No ${row.label === 'M' ? 'morning' : row.label === 'A' ? 'afternoon' : 'night'} coverage`} className="inline-flex align-middle">
+                                                        <TriangleAlert size={13} className="text-amber-500" />
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-300">–</span>
+                                                )}
                                             </td>
                                         );
                                     })}
