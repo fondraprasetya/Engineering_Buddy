@@ -131,25 +131,37 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="photo" className="block text-sm font-medium text-gray-700 mb-1">Photo (optional)</label>
-                        <input
-                            id="photo"
-                            type="file"
-                            accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
-                            capture="environment"
-                            onChange={(e) => {
-                                const file = e.target.files[0];
-                                setData('photo', file);
-                                if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => setPhotoPreview(ev.target.result);
-                                    reader.readAsDataURL(file);
-                                } else {
-                                    setPhotoPreview(null);
-                                }
-                            }}
-                            className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-brand-700 hover:file:bg-brand-50"
-                        />
+                        <span className="block text-sm font-medium text-gray-700 mb-1">Photo (optional)</span>
+                        {[
+                            { id: 'photo-camera', label: '📷 Take photo', capture: 'environment' },
+                            { id: 'photo-file', label: '🖼️ Choose file', capture: undefined },
+                        ].map(opt => (
+                            <span key={opt.id} className="inline-block mr-2 mb-2">
+                                <input
+                                    id={opt.id}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                                    {...(opt.capture ? { capture: opt.capture } : {})}
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        setData('photo', file);
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = (ev) => setPhotoPreview(ev.target.result);
+                                            reader.readAsDataURL(file);
+                                        } else {
+                                            setPhotoPreview(null);
+                                        }
+                                        e.target.value = '';
+                                    }}
+                                    className="hidden"
+                                />
+                                <label htmlFor={opt.id} className="inline-block cursor-pointer text-sm font-medium px-4 py-2 rounded-xl bg-blue-50 text-brand-700 hover:bg-brand-50">
+                                    {opt.label}
+                                </label>
+                            </span>
+                        ))}
+                        {data.photo && <p className="text-xs text-gray-500 truncate">{data.photo.name}</p>}
                         {photoPreview && (
                             <div className="mt-2">
                                 <img src={photoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-xl border" />
