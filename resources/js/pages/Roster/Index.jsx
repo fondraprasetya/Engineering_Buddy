@@ -62,6 +62,7 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
         setModal({
             userId,
             date,
+            endDate: date,
             entryId: entry?.id ?? null,
             shift: entry?.shift ?? 'morning',
             blocks: entry?.time_blocks?.length ? entry.time_blocks.map(b => ({ ...b })) : defaultBlocks(entry?.shift ?? 'morning'),
@@ -82,6 +83,7 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
                 body: JSON.stringify({
                     user_id: modal.userId,
                     date: modal.date,
+                    end_date: modal.endDate && modal.endDate > modal.date ? modal.endDate : undefined,
                     shift: modal.shift,
                     time_blocks: noBlockShifts.includes(modal.shift) ? [] : modal.blocks,
                 }),
@@ -395,6 +397,14 @@ export default function Index({ auth, users, entries, days, month, prevMonth, ne
                                     <button onClick={addBlock} className="text-xs text-brand-600 hover:text-brand-700 font-medium" disabled={modal.approved && !canApprove}>+ Add Block</button>
                                 </div>
                             )}
+
+                            <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">Apply through (optional date range)</label>
+                                <input type="date" value={modal.endDate ?? modal.date} min={modal.date} onChange={e => setModal(m => ({ ...m, endDate: e.target.value || m.date }))} className="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm" disabled={modal.approved && !canApprove} />
+                                {modal.endDate && modal.endDate > modal.date && (
+                                    <p className="text-[11px] text-brand-600 mt-1">Applies {modal.date} → {modal.endDate} (same shift & hours every day).</p>
+                                )}
+                            </div>
 
                             {apiError && <p className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2">{apiError}</p>}
 

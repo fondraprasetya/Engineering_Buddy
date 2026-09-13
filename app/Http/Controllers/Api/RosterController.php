@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\RosterEntry;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RosterController extends Controller
@@ -19,27 +20,40 @@ class RosterController extends Controller
             'time_blocks' => 'nullable|array',
             'time_blocks.*.in' => 'required|date_format:H:i',
             'time_blocks.*.out' => 'required|date_format:H:i',
+            'end_date' => 'nullable|date|after_or_equal:date',
         ]);
 
-        $existing = RosterEntry::where('user_id', $validated['user_id'])
-            ->where('date', $validated['date'])
-            ->first();
+        $start = Carbon::parse($validated['date'])->startOfDay();
+        $end = isset($validated['end_date']) ? Carbon::parse($validated['end_date'])->startOfDay() : $start->copy();
 
-        if ($existing && $existing->isApproved() && ! $request->user()->can('approve roster')) {
-            return response()->json(['message' => 'This entry is approved. Only Chief Engineer can edit approved entries.'], 403);
+        if ($start->diffInDays($end) > 31) {
+            return response()->json(['message' => 'Date range is limited to 31 days.'], 422);
         }
 
-        $entry = RosterEntry::updateOrCreate(
-            ['user_id' => $validated['user_id'], 'date' => $validated['date']],
-            [
-                'shift' => $validated['shift'],
-                'time_blocks' => $validated['time_blocks'] ?? null,
-                'created_by' => $request->user()->id,
-                'notes' => $request->input('notes'),
-            ],
-        );
+        $saved = 0;
+        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+            $dateStr = $d->toDateString();
+            $existing = RosterEntry::where('user_id', $validated['user_id'])
+                ->where('date', $dateStr)
+                ->first();
 
-        return response()->json($entry, 201);
+            if ($existing && $existing->isApproved() && ! $request->user()->can('approve roster')) {
+                return response()->json(['message' => "Entry on {$dateStr} is approved. Only Chief Engineer can edit approved entries."], 403);
+            }
+
+            RosterEntry::updateOrCreate(
+                ['user_id' => $validated['user_id'], 'date' => $dateStr],
+                [
+                    'shift' => $validated['shift'],
+                    'time_blocks' => $validated['time_blocks'] ?? null,
+                    'created_by' => $request->user()->id,
+                    'notes' => $request->input('notes'),
+                ],
+            );
+            $saved++;
+        }
+
+        return response()->json(['saved' => $saved], 201);
     }
 
     public function destroy(Request $request, RosterEntry $rosterEntry)
