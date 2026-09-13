@@ -57,8 +57,19 @@ class LocationController extends Controller
         ]);
 
         $prefixes = ['building' => 'BLD', 'area' => 'AR', 'room' => 'RM'];
-        $last = Location::where('type', $validated['type'])->max('id') ?? 0;
-        $validated['code'] = $prefixes[$validated['type']].'-'.str_pad($last + 1, 3, '0', STR_PAD_LEFT);
+        // Derive the next code from existing codes (not max id, which collides
+        // after deletes or across tenants since `code` is globally unique).
+        $prefix = $prefixes[$validated['type']];
+        $maxNum = Location::withoutGlobalScopes()
+            ->where('type', $validated['type'])
+            ->where('code', 'like', $prefix.'-%')
+            ->get()
+            ->map(fn ($l) => (int) substr($l->code, strlen($prefix) + 1))
+            ->max() ?? 0;
+        do {
+            $maxNum++;
+            $validated['code'] = $prefix.'-'.str_pad($maxNum, 3, '0', STR_PAD_LEFT);
+        } while (Location::withoutGlobalScopes()->where('code', $validated['code'])->exists());
 
         Location::create($validated);
 
