@@ -1,0 +1,4 @@
+type,cost_per_unit,unit,start_date,end_date,notes
+electricity,1445,kWh,2026-01-01,,PLN B2 tariff
+water,12500,m3,2026-01-01,,PDAM commercial
+gas,8500,m3,2026-01-01,,PGN commercial

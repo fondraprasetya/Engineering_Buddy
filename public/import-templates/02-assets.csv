@@ -1,0 +1,4 @@
+code,name,category,location_code,status,acquisition_cost,acquisition_date
+AC-001,Split AC Meeting Room 1,HVAC,RM-001,active,8500000,2023-05-10
+GEN-001,Standby Generator 100kVA,Electrical,BLD-001,active,450000000,2021-02-01
+PUMP-001,Booster Pump Basement,Plumbing,BLD-001,active,12000000,2022-11-20

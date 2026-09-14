@@ -1,0 +1,4 @@
+name,email,password,role,department,phone
+Budi Hartono,budi@hotel.test,ChangeMe123,super-admin,Engineering,081200000001
+Siti Rahma,siti@hotel.test,ChangeMe123,technician,Engineering,081200000002
+Agus Santoso,agus@hotel.test,ChangeMe123,employee,Housekeeping,081200000003

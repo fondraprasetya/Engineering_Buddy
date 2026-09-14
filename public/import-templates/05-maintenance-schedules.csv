@@ -1,0 +1,4 @@
+title,asset_code,frequency_type,frequency_value,next_due_date,technician_email,is_active
+AC filter cleaning,AC-001,monthly,1,2026-10-01,siti@hotel.test,1
+Generator load test,GEN-001,weekly,1,2026-09-20,siti@hotel.test,1
+Pump inspection,PUMP-001,quarterly,1,2026-12-01,,1

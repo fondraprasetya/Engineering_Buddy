@@ -1,0 +1,4 @@
+code,type,name,parent_code,floor_number,description
+BLD-001,building,Main Building,,,8-storey hotel building
+AR-001,area,Meeting Rooms,BLD-001,,All meeting facilities on floor 2
+RM-001,room,Meeting Room 1,AR-001,2,Capacity 20 pax
