@@ -12,6 +12,7 @@ use App\Http\Controllers\DailyUtilityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MaintenanceScheduleController;
+use App\Http\Controllers\OwnerReportController;
 use App\Http\Controllers\MonthlyBudgetController;
 use App\Http\Controllers\MyTaskController;
 use App\Http\Controllers\NotificationController;
@@ -122,6 +123,9 @@ Route::middleware('auth')->group(function () {
     Route::post('profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::get('assets/{asset}/history', [AssetController::class, 'history'])->name('assets.history');
     Route::get('assets/{asset}/qrcode', [AssetController::class, 'qrcode'])->name('assets.qrcode');
+    Route::get('assets/{asset}/label', [AssetController::class, 'label'])->name('assets.label');
+
+    Route::get('reports/owner', [OwnerReportController::class, 'download'])->name('reports.owner');
 
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('users.create');

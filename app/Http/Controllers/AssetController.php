@@ -138,6 +138,13 @@ class AssetController extends Controller
         return response($svg, 200, ['Content-Type' => 'image/svg+xml']);
     }
 
+    public function label(Asset $asset)
+    {
+        $asset->load('location:id,name');
+
+        return response()->view('assets.label', ['asset' => $asset]);
+    }
+
     public function history(Asset $asset)
     {
         abort_unless(auth()->user()->can('view asset history'), 403);

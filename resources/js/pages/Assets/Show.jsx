@@ -20,6 +20,7 @@ export default function Show({ auth, asset }) {
                         <h2 className="text-xl font-semibold text-gray-900">{asset.name}</h2>
                         <div className="flex gap-2">
                             <Link href={`/assets/${asset.id}/history`} className="text-sm text-brand-600 hover:text-brand-700">History</Link>
+                            <a href={`/assets/${asset.id}/label`} target="_blank" rel="noreferrer" className="text-sm text-brand-600 hover:text-brand-700">🏷️ Print label</a>
                             <Link href={`/assets/${asset.id}/edit`} className="text-sm text-brand-600 hover:text-brand-700">Edit</Link>
                         </div>
                     </div>
