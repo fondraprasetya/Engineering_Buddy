@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AssetHistoryController;
 use App\Http\Controllers\Api\ChecklistResponseController;
 use App\Http\Controllers\Api\DashboardSettingsController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\ClientErrorController;
 use App\Http\Controllers\Api\PushSubscriptionController;
 use App\Http\Controllers\Api\RosterController;
 use App\Http\Controllers\Api\TechnicianController;
@@ -36,6 +37,7 @@ Route::prefix('v1')->group(function () {
     Route::get('push/public-key', [PushSubscriptionController::class, 'publicKey'])->middleware('auth');
     Route::post('push/subscribe', [PushSubscriptionController::class, 'subscribe'])->middleware('auth');
     Route::post('push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe'])->middleware('auth');
+    Route::post('client-errors', [ClientErrorController::class, 'store'])->middleware(['auth', 'throttle:30,1']);
 
     Route::post('telegram/link', [TelegramController::class, 'link'])->middleware('auth');
     Route::post('telegram/webhook', [TelegramController::class, 'webhook'])->withoutMiddleware('auth');
