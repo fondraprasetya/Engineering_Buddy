@@ -17,10 +17,10 @@ class SendBillingReminders extends Command
     {
         $sent = 0;
 
-        // Trials ending within the next 3 days
+        // Trials ending within the next 7 days (daily 10am WIB countdown)
         Subscription::where('status', 'trial')
             ->where('trial_ends_at', '>', now())
-            ->where('trial_ends_at', '<=', now()->addDays(3))
+            ->where('trial_ends_at', '<=', now()->addDays(7))
             ->get()
             ->each(function (Subscription $sub) use ($notifications, &$sent) {
                 if (! $this->shouldRemind($sub)) {

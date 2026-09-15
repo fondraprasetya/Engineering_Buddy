@@ -11,5 +11,6 @@ Artisan::command('inspire', function () {
 Schedule::command('maintenance:roll')->dailyAt('00:01');
 Schedule::command('maintenance:process')->dailyAt('00:02');
 Schedule::command('billing:expire-trials')->hourly();
-Schedule::command('billing:send-reminders')->hourly();
+// 03:00 UTC = 10:00 WIB (app timezone is UTC; tenants are Indonesia-based)
+Schedule::command('billing:send-reminders')->dailyAt('03:00');
 Schedule::command('report:owner-monthly')->monthlyOn(1, '07:00');
