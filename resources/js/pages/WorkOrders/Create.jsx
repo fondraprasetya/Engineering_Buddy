@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
-function SearchSelect({ options, value, onChange, placeholder, inputId }) {
+function SearchSelect({ options, value, onChange, placeholder, inputId, clearTitle }) {
+    const { t } = useLang();
     const [query, setQuery] = useState('');
     const [open, setOpen] = useState(false);
     const selected = options.find(o => String(o.id) === String(value));
@@ -20,7 +22,7 @@ function SearchSelect({ options, value, onChange, placeholder, inputId }) {
                     onChange={e => { if (selected) onChange(''); setQuery(e.target.value); setOpen(true); }}
                     onFocus={() => setOpen(true)}
                     onBlur={() => setTimeout(() => setOpen(false), 150)}
-                    placeholder={selected ? selected.label : (placeholder ?? 'Type to search…')}
+                    placeholder={selected ? selected.label : (placeholder ?? t('wo.type_search'))}
                     className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400 focus:border-transparent"
                 />
                 {(selected || query) && (
@@ -28,7 +30,7 @@ function SearchSelect({ options, value, onChange, placeholder, inputId }) {
                         type="button"
                         onClick={() => { onChange(''); setQuery(''); }}
                         className="shrink-0 px-3 rounded-xl border border-gray-300 text-gray-500 hover:bg-gray-50 text-sm"
-                        title="Clear location"
+                        title={clearTitle ?? t('common.clear')}
                     >
                         ✕
                     </button>
@@ -37,7 +39,7 @@ function SearchSelect({ options, value, onChange, placeholder, inputId }) {
             {open && !selected && (
                 <div className="absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg">
                     {matches.length === 0 ? (
-                        <p className="px-3 py-2 text-sm text-gray-400">No locations match “{query}”.</p>
+                        <p className="px-3 py-2 text-sm text-gray-400">{t('wo.no_match')} “{query}”.</p>
                     ) : (
                         matches.map(o => (
                             <button
@@ -58,6 +60,7 @@ function SearchSelect({ options, value, onChange, placeholder, inputId }) {
 }
 
 export default function Create({ auth, assets, projects, locationOptions }) {
+    const { t } = useLang();
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         description: '',
@@ -78,10 +81,10 @@ export default function Create({ auth, assets, projects, locationOptions }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Create Work Order" />
+            <Head title={t('wo.create_title')} />
 
             <div className="max-w-lg mx-auto">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Create Work Order</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('wo.create_title')}</h2>
 
                 <form onSubmit={submit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
                     {errors.title && (
@@ -89,7 +92,7 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     )}
 
                     <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_title')}</label>
                         <input
                             id="title"
                             type="text"
@@ -101,7 +104,7 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_desc')}</label>
                         <textarea
                             id="description"
                             value={data.description}
@@ -112,10 +115,10 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="asset_search" className="block text-sm font-medium text-gray-700 mb-1">Asset (optional)</label>
+                        <label htmlFor="asset_search" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_asset')} ({t('common.optional')})</label>
                         <SearchSelect
                             inputId="asset_search"
-                            placeholder="Type to search asset…"
+                            placeholder={t('wo.search_asset_ph')}
                             options={(assets ?? []).map(a => ({ id: a.id, label: `${a.name} (${a.code})` }))}
                             value={data.asset_id}
                             onChange={(id) => setData('asset_id', id)}
@@ -123,10 +126,10 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="location_search" className="block text-sm font-medium text-gray-700 mb-1">Location (optional)</label>
+                        <label htmlFor="location_search" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_location')} ({t('common.optional')})</label>
                         <SearchSelect
                             inputId="location_search"
-                            placeholder="Type to search location…"
+                            placeholder={t('wo.search_location_ph')}
                             options={locationOptions ?? []}
                             value={data.location_id}
                             onChange={(id) => setData('location_id', id)}
@@ -134,25 +137,25 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                        <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_priority')}</label>
                         <select
                             id="priority"
                             value={data.priority}
                             onChange={(e) => setData('priority', e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400 focus:border-transparent"
                         >
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
+                            <option value="low">{t('pr.low')}</option>
+                            <option value="medium">{t('pr.medium')}</option>
+                            <option value="high">{t('pr.high')}</option>
+                            <option value="urgent">{t('pr.urgent')}</option>
                         </select>
                     </div>
 
                     <div>
-                        <label htmlFor="project_search" className="block text-sm font-medium text-gray-700 mb-1">Project (optional)</label>
+                        <label htmlFor="project_search" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_project')} ({t('common.optional')})</label>
                         <SearchSelect
                             inputId="project_search"
-                            placeholder="Type to search project…"
+                            placeholder={t('wo.search_project_ph')}
                             options={(projects ?? []).map(p => ({ id: p.id, label: p.name }))}
                             value={data.project_id}
                             onChange={(id) => setData('project_id', id)}
@@ -160,7 +163,7 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="actual_cost" className="block text-sm font-medium text-gray-700 mb-1">Estimated Cost (IDR, optional)</label>
+                        <label htmlFor="actual_cost" className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_cost')}</label>
                         <input
                             id="actual_cost"
                             type="number"
@@ -174,10 +177,10 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <span className="block text-sm font-medium text-gray-700 mb-1">Photo (optional)</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-1">{t('wo.f_photo')} ({t('common.optional')})</span>
                         {[
-                            { id: 'photo-camera', label: '📷 Take photo', capture: 'environment' },
-                            { id: 'photo-file', label: '🖼️ Choose file', capture: undefined },
+                            { id: 'photo-camera', label: t('wo.take_photo'), capture: 'environment' },
+                            { id: 'photo-file', label: t('wo.choose_file'), capture: undefined },
                         ].map(opt => (
                             <span key={opt.id} className="inline-block mr-2 mb-2">
                                 <input
@@ -208,7 +211,7 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                         {photoPreview && (
                             <div className="mt-2">
                                 <img src={photoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-xl border" />
-                                <button type="button" onClick={() => { setData('photo', null); setPhotoPreview(null); }} className="text-xs text-red-600 mt-1 block">Remove</button>
+                                <button type="button" onClick={() => { setData('photo', null); setPhotoPreview(null); }} className="text-xs text-red-600 mt-1 block">{t('common.remove')}</button>
                             </div>
                         )}
                     </div>
@@ -218,7 +221,7 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                         disabled={processing}
                         className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50"
                     >
-                        {processing ? 'Submitting...' : 'Submit Work Order'}
+                        {processing ? t('wo.submitting') : t('wo.submit')}
                     </button>
                 </form>
             </div>
