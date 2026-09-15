@@ -1,0 +1,1 @@
+[{"relation": ["delegate_permission/common.handle_all_urls"], "target": {"namespace": "android_app", "package_name": "id.web.engbuddy.twa", "sha256_cert_fingerprints": ["A2:F1:BA:BA:F5:CE:39:1D:96:DC:2D:8D:47:C8:F2:EA:2A:2C:56:1A:A3:26:92:4E:94:1E:74:F5:B1:B0:04:36"]}}]
