@@ -3,16 +3,18 @@ import { AlertTriangle } from 'lucide-react';
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout';
 import DashboardHeader from './dashboard/components/DashboardHeader';
 import WidgetGrid from './dashboard/components/WidgetGrid';
+import { useLang } from '../i18n';
 
 export default function Dashboard({ auth, notification_count, overdueCount, weather, widgetSettings, widgetData }) {
+    const { t } = useLang();
     const role = auth.user.roles?.[0] ?? 'employee';
     const headlines = {
-        employee: 'Welcome! Report an issue or request maintenance work.',
-        'dept-head': `Approvals await your review.`,
-        technician: `Tasks assigned to you.`,
-        'eng-admin': 'Manage assets, schedules, and templates.',
-        'chief-engineer': `Work orders await your final approval.`,
-        gm: 'Org-wide reports and project overview.',
+        employee: t('dash.welcome_employee'),
+        'dept-head': t('dash.welcome_dept_head'),
+        technician: t('dash.welcome_technician'),
+        'eng-admin': t('dash.welcome_eng_admin'),
+        'chief-engineer': t('dash.welcome_chief'),
+        gm: t('dash.welcome_gm'),
     };
 
     return (
@@ -24,7 +26,7 @@ export default function Dashboard({ auth, notification_count, overdueCount, weat
 
                 {['gm', 'super-admin', 'chief-engineer', 'eng-admin'].includes(role) && (
                     <a href="/reports/owner" className="flex items-center justify-center gap-2 bg-white border border-brand-100 rounded-2xl p-3 text-sm font-medium text-brand-700 hover:bg-brand-50 transition-colors">
-                        📄 Download owner report (this month, PDF)
+                        📄 {t('dash.owner_report')}
                     </a>
                 )}
 
@@ -34,8 +36,8 @@ export default function Dashboard({ auth, notification_count, overdueCount, weat
                             <AlertTriangle size={18} className="text-danger-600" />
                         </span>
                         <div>
-                            <p className="text-danger-900 font-medium">{overdueCount} overdue maintenance schedule{overdueCount !== 1 ? 's' : ''}</p>
-                            <p className="text-danger-600 text-sm mt-0.5">View schedules &rarr;</p>
+                            <p className="text-danger-900 font-medium">{overdueCount} {overdueCount !== 1 ? t('dash.overdue_plural') : t('dash.overdue')}</p>
+                            <p className="text-danger-600 text-sm mt-0.5">{t('dash.view_schedules')} &rarr;</p>
                         </div>
                     </Link>
                 )}

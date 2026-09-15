@@ -1,5 +1,6 @@
 import { Bell, CloudSun, Clock, LogOut, User, CircleHelp } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
+import { useLang } from '../../../i18n';
 
 const greetings = ['Good Morning', 'Good Afternoon', 'Good Evening'];
 
@@ -20,11 +21,23 @@ function formatDate() {
 }
 
 export default function DashboardHeader({ auth, notification_count, weather }) {
+    const { lang, setLang, t } = useLang();
     const user = auth?.user;
     const name = user?.name ?? 'User';
     const tenantName = auth?.tenant?.name ?? '';
     const temp = weather?.temp ?? '--';
     const condition = weather?.condition ?? '';
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
+
+    const greeting = () => {
+        const h = new Date().getHours();
+        return h < 12 ? t('header.morning') : h < 17 ? t('header.afternoon') : t('header.evening');
+    };
+    const shift = () => {
+        const h = new Date().getHours();
+        return h >= 6 && h < 14 ? t('header.morning_shift') : h >= 14 && h < 22 ? t('header.afternoon_shift') : t('header.night_shift');
+    };
+    const todayStr = () => new Date().toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     const handleLogout = (e) => {
         e.preventDefault();
@@ -38,23 +51,34 @@ export default function DashboardHeader({ auth, notification_count, weather }) {
                     <img src="/images/logo.png" alt="Engineering Buddy" className="h-10 md:h-28 w-auto shrink-0" />
                     <div className="min-w-0">
                         <h1 className="text-sm md:text-base font-bold text-gray-900 truncate leading-tight">
-                            {getGreeting()}, {name.split(' ')[0]}
+                            {greeting()}, {name.split(' ')[0]}
                         </h1>
                         {tenantName !== '' && (
                             <p className="text-[10px] text-brand-600 font-medium leading-tight truncate">{tenantName}</p>
                         )}
                         <div className="flex flex-wrap items-center gap-x-2 text-[8px] md:text-[9px] text-gray-400 leading-tight mt-0.5">
-                            <span className="truncate max-w-[120px] md:max-w-none">{formatDate()}</span>
-                            <span className="flex items-center gap-0.5 shrink-0"><Clock size={8} />{getShift()}</span>
+                            <span className="truncate max-w-[120px] md:max-w-none">{todayStr()}</span>
+                            <span className="flex items-center gap-0.5 shrink-0"><Clock size={8} />{shift()}</span>
                             <span className="flex items-center gap-0.5 shrink-0"><CloudSun size={8} />{temp}°C {condition}</span>
                         </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                    <Link href="/help" className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title="Help & User Manual">
+                    <div className="flex rounded-full border border-gray-200 overflow-hidden text-[10px] font-bold" title="Language / Bahasa">
+                        {['en', 'id'].map(l => (
+                            <button
+                                key={l}
+                                onClick={() => setLang(l)}
+                                className={`px-2 py-1 uppercase ${lang === l ? 'bg-brand-600 text-white' : 'text-gray-400 hover:bg-gray-50'}`}
+                            >
+                                {l}
+                            </button>
+                        ))}
+                    </div>
+                    <Link href="/help" className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title={t('header.help')}>
                         <CircleHelp size={18} className="text-gray-400" />
                     </Link>
-                    <button onClick={handleLogout} className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title="Logout">
+                    <button onClick={handleLogout} className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title={t('header.logout')}>
                         <LogOut size={18} className="text-gray-400" />
                     </button>
                     <Link href="/notifications" className="relative p-2 rounded-2xl hover:bg-brand-50 transition-colors">

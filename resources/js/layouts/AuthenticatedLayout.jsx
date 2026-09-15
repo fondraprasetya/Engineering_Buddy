@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import Toast from '../components/Toast';
+import { LangProvider, useLang, navKey } from '../i18n';
 import {
     Home, Calendar, ClipboardList, CheckCircle2, BarChart3, User,
     Wrench, Package, NotebookPen, FolderOpen, Factory, Wallet,
@@ -88,7 +89,16 @@ const tabConfig = {
     ],
 };
 
-export default function AuthenticatedLayout({ auth, children }) {
+export default function AuthenticatedLayout(props) {
+    return (
+        <LangProvider>
+            <Shell {...props} />
+        </LangProvider>
+    );
+}
+
+function Shell({ auth, children }) {
+    const { t } = useLang();
     const user = auth.user;
     const role = user.roles?.[0] ?? 'employee';
     const tabs = tabConfig[role] ?? tabConfig.employee;
@@ -140,14 +150,14 @@ export default function AuthenticatedLayout({ auth, children }) {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
                     <div className="bg-white rounded-2xl shadow-xl p-6 w-80 text-center">
                         <div className="text-4xl mb-2">⏳</div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">Free trial: {trial.days_left} day{trial.days_left !== 1 ? 's' : ''} left</h3>
-                        <p className="text-sm text-gray-500 mb-4">Your trial ends on {trial.ends_on}. Subscribe to keep your facility running without interruption.</p>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">{t('dash.trial_title')}: {trial.days_left} {trial.days_left !== 1 ? t('dash.trial_days_left') : t('dash.trial_day_left')}</h3>
+                        <p className="text-sm text-gray-500 mb-4">{t('dash.trial_ends')} {trial.ends_on}. {t('dash.trial_body')}</p>
                         <div className="flex gap-2">
                             <Link href="/billing" onClick={dismissTrial} className="flex-1 bg-brand-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-brand-700 text-center">
-                                View plans
+                                {t('dash.view_plans')}
                             </Link>
                             <button onClick={dismissTrial} className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-2 text-sm font-medium hover:bg-gray-50">
-                                Later
+                                {t('dash.later')}
                             </button>
                         </div>
                     </div>
@@ -173,7 +183,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                                             className="flex flex-col items-center py-3 px-2 text-xs text-gray-700 hover:text-brand-800 hover:bg-brand-50 rounded-xl transition-colors"
                                         >
                                             <ChildIcon size={20} className="mb-1" />
-                                            <span className="text-center leading-tight">{child.name}</span>
+                                            <span className="text-center leading-tight">{t('nav.' + navKey(child.name))}</span>
                                         </Link>
                                     );
                                 })}
@@ -200,7 +210,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                                 <span className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-50' : ''}`}>
                                     <TabIcon size={20} className={isActive ? 'text-brand-600' : 'text-gray-400'} />
                                 </span>
-                                <span className={isActive ? 'text-brand-700 font-medium' : 'text-gray-500'}>{tab.name}</span>
+                                <span className={isActive ? 'text-brand-700 font-medium' : 'text-gray-500'}>{t('nav.' + navKey(tab.name))}</span>
                             </button>
                         ) : (
                             <Link
@@ -211,7 +221,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                                 <span className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-brand-50' : ''}`}>
                                     <TabIcon size={20} className={isActive ? 'text-brand-600' : 'text-gray-400'} />
                                 </span>
-                                <span className={isActive ? 'text-brand-700 font-medium' : 'text-gray-500'}>{tab.name}</span>
+                                <span className={isActive ? 'text-brand-700 font-medium' : 'text-gray-500'}>{t('nav.' + navKey(tab.name))}</span>
                             </Link>
                         );
                     })}
