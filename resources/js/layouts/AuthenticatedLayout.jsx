@@ -95,6 +95,22 @@ export default function AuthenticatedLayout({ auth, children }) {
     const { url } = usePage();
     const [openGroup, setOpenGroup] = useState(null);
 
+    const trial = auth.subscription?.status === 'trial' ? auth.subscription : null;
+    const [showTrial, setShowTrial] = useState(() => {
+        if (!trial) return false;
+        try {
+            return sessionStorage.getItem('trial-nudge-seen') !== '1';
+        } catch {
+            return true;
+        }
+    });
+    const dismissTrial = () => {
+        try {
+            sessionStorage.setItem('trial-nudge-seen', '1');
+        } catch { /* ignore */ }
+        setShowTrial(false);
+    };
+
     const isChildActive = (children) =>
         children.some((c) => url.startsWith(c.href));
 
@@ -116,6 +132,24 @@ export default function AuthenticatedLayout({ auth, children }) {
             </main>
 
             <Toast />
+
+            {showTrial && trial && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                    <div className="bg-white rounded-2xl shadow-xl p-6 w-80 text-center">
+                        <div className="text-4xl mb-2">⏳</div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">Free trial: {trial.days_left} day{trial.days_left !== 1 ? 's' : ''} left</h3>
+                        <p className="text-sm text-gray-500 mb-4">Your trial ends on {trial.ends_on}. Subscribe to keep your facility running without interruption.</p>
+                        <div className="flex gap-2">
+                            <Link href="/billing" className="flex-1 bg-brand-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-brand-700 text-center">
+                                View plans
+                            </Link>
+                            <button onClick={dismissTrial} className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-2 text-sm font-medium hover:bg-gray-50">
+                                Later
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <nav className="bg-white border-t border-brand-50 fixed bottom-0 left-0 right-0 z-30">
                 {openGroup && (
