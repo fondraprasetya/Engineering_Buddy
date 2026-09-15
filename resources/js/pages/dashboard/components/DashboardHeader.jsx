@@ -1,4 +1,4 @@
-import { Bell, CloudSun, Clock, LogOut, User } from 'lucide-react';
+import { Bell, CloudSun, Clock, LogOut, User, CircleHelp } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 
 const greetings = ['Good Morning', 'Good Afternoon', 'Good Evening'];
@@ -51,6 +51,9 @@ export default function DashboardHeader({ auth, notification_count, weather }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                    <Link href="/help" className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title="Help & User Manual">
+                        <CircleHelp size={18} className="text-gray-400" />
+                    </Link>
                     <button onClick={handleLogout} className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title="Logout">
                         <LogOut size={18} className="text-gray-400" />
                     </button>
