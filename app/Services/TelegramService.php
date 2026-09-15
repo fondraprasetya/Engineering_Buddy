@@ -111,6 +111,13 @@ class TelegramService
                     return $this->handleCmdList($chatId);
                 }
 
+                // Field calculators — pure math, no account needed
+                foreach (['/btu', '/kw', '/lux', '/psi', '/tempc'] as $cmd) {
+                    if ($text === $cmd || str_starts_with($text, $cmd.' ')) {
+                        return $this->handleToolCalc($chatId, $text);
+                    }
+                }
+
                 $telegramLink = TelegramLink::where('chat_id', $chatId)->whereNotNull('linked_at')->first();
                 if (! $telegramLink) {
                     return $this->sendMessage($chatId, 'Please link your account first. Use /start <code> with the code from the app.');
@@ -196,6 +203,70 @@ class TelegramService
             return null;
         } finally {
             TenantContext::clear();
+        }
+    }
+
+    // ─── Field Calculators (no login required) ──────────────────────
+
+    private function handleToolCalc(int $chatId, string $text): ?string
+    {
+        $parts = preg_split('/\s+/', trim($text));
+        $cmd = strtolower(array_shift($parts));
+        $num = static function ($v) {
+            if ($v === null) return null;
+            $n = (float) str_replace(',', '.', $v);
+            return $n > 0 ? $n : null;
+        };
+        $f = static fn ($n, $d = 2) => number_format($n, $d, ',', '.');
+
+        switch ($cmd) {
+            case '/btu': {
+                $btu = $num($parts[0] ?? null);
+                if ($btu === null) {
+                    return $this->sendMessage($chatId, "Usage: /btu [BTU]\nExample: /btu 9000");
+                }
+
+                return $this->sendMessage($chatId, "❄️ {$f($btu, 0)} BTU/h\n= {$f($btu / 9000)} PK\n= {$f($btu / 3.412, 0)} Watt");
+            }
+            case '/kw': {
+                $kw = $num($parts[0] ?? null);
+                if ($kw === null) {
+                    return $this->sendMessage($chatId, "Usage: /kw [kW]\nExample: /kw 5.5");
+                }
+
+                return $this->sendMessage($chatId, "⚡ {$f($kw)} kW\n= {$f($kw * 1000, 0)} Watt\n= {$f($kw * 1.34)} HP\n≈ {$f($kw * 1000 / (220 * 0.8), 1)} A @220V 1φ");
+            }
+            case '/lux': {
+                $p = $num($parts[0] ?? null);
+                $l = $num($parts[1] ?? null);
+                $type = strtolower($parts[2] ?? 'meeting');
+                $luxNeed = ['corridor' => 100, 'bedroom' => 150, 'meeting' => 300, 'office' => 350, 'kitchen' => 200][$type] ?? 300;
+                if ($p === null || $l === null) {
+                    return $this->sendMessage($chatId, "Usage: /lux [length m] [width m] [type]\nTypes: corridor, bedroom, meeting, office, kitchen\nExample: /lux 8 6 meeting");
+                }
+                $lamps = (int) ceil($p * $l * $luxNeed / 1600);
+
+                return $this->sendMessage($chatId, "💡 {$p}×{$l}m ({$type}, {$luxNeed} lux)\nNeeds ≈ {$f($p * $l * $luxNeed, 0)} lumen\n= {$lamps} × 18W LED lamps (≈1600 lm each)");
+            }
+            case '/psi': {
+                $bar = $num($parts[0] ?? null);
+                if ($bar === null) {
+                    return $this->sendMessage($chatId, "Usage: /psi [bar]\nExample: /psi 6");
+                }
+
+                return $this->sendMessage($chatId, "🔧 {$f($bar)} bar\n= {$f($bar * 14.5038)} psi\n= {$f($bar * 100, 0)} kPa");
+            }
+            case '/tempc': {
+                $c = $parts[0] ?? null;
+                if (! is_numeric(str_replace(',', '.', (string) $c))) {
+                    return $this->sendMessage($chatId, "Usage: /tempc [°C]\nExample: /tempc 25");
+                }
+                $c = (float) str_replace(',', '.', (string) $c);
+
+                return $this->sendMessage($chatId, "🌡️ {$f($c)} °C = {$f($c * 9 / 5 + 32)} °F");
+            }
+            default:
+                return $this->sendMessage($chatId, '❌ Unrecognized command. Use /cmdlist for all available commands.');
         }
     }
 
@@ -1531,6 +1602,12 @@ class TelegramService
             ."/teamroster#[yymmdd] - Team roster for a date\n"
             ."/report [notes] - Daily log\n"
             ."/unlink - Unlink Telegram\n"
+            ."\n🧮 Field calculators (no login needed)\n"
+            ."/btu [BTU] - BTU to PK & Watt\n"
+            ."/kw [kW] - kW to HP, Watt & Ampere\n"
+            ."/lux [L m] [W m] [type] - Lamps needed\n"
+            ."/psi [bar] - bar to psi & kPa\n"
+            ."/tempc [C] - Celsius to Fahrenheit\n"
             ."/cmdlist - Show all commands\n"
             .'/restart - Restart session';
 

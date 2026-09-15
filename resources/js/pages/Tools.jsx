@@ -139,6 +139,39 @@ function ElectricalTools() {
     );
 }
 
+const LUX_LEVELS = { corridor: 100, bedroom: 150, meeting: 300, office: 350, kitchen: 200 };
+
+function LightingTools() {
+    const [room, setRoom] = useState({ p: '', l: '', type: 'meeting' });
+    const p = num(room.p);
+    const l = num(room.l);
+    const lux = LUX_LEVELS[room.type] ?? 300;
+    const area = p !== null && l !== null ? p * l : null;
+    const lamps = area !== null ? Math.ceil((area * lux) / 1600) : null;
+
+    return (
+        <Card title="Lighting — Lamps Needed" icon="💡">
+            <div className="grid grid-cols-3 gap-2">
+                <input type="number" min="0" value={room.p} onChange={e => setRoom({ ...room, p: e.target.value })} placeholder="Length (m)" className={inputCls} />
+                <input type="number" min="0" value={room.l} onChange={e => setRoom({ ...room, l: e.target.value })} placeholder="Width (m)" className={inputCls} />
+                <select value={room.type} onChange={e => setRoom({ ...room, type: e.target.value })} className={inputCls}>
+                    <option value="corridor">Corridor (100 lux)</option>
+                    <option value="bedroom">Bedroom (150 lux)</option>
+                    <option value="kitchen">Kitchen (200 lux)</option>
+                    <option value="meeting">Meeting (300 lux)</option>
+                    <option value="office">Office (350 lux)</option>
+                </select>
+            </div>
+            {lamps !== null && (
+                <div className="space-y-1.5">
+                    <Result label={`Light needed (${fmt(area, 1)} m²)`} value={`${fmt(area * lux, 0)} lumen`} />
+                    <Result label="18W LED lamps (≈1600 lm)" value={`${lamps} pcs`} />
+                </div>
+            )}
+        </Card>
+    );
+}
+
 function UnitTools() {
     const [pressure, setPressure] = useState('');
     const [temp, setTemp] = useState('');
@@ -176,6 +209,7 @@ export default function Tools({ auth }) {
                 </div>
                 <HvacTools />
                 <ElectricalTools />
+                <LightingTools />
                 <UnitTools />
             </div>
         </AuthenticatedLayout>
