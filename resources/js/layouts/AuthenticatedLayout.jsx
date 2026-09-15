@@ -5,7 +5,7 @@ import Toast from '../components/Toast';
 import {
     Home, Calendar, ClipboardList, CheckCircle2, BarChart3, User,
     Wrench, Package, NotebookPen, FolderOpen, Factory, Wallet,
-    BookText, Users, MapPin, ListChecks, Clock, Zap, Receipt, Bell,
+    BookText, Users, MapPin, ListChecks, Clock, Zap, Receipt, Bell, Calculator,
 } from 'lucide-react';
 
 const masterData = {
@@ -92,6 +92,9 @@ export default function AuthenticatedLayout({ auth, children }) {
     const user = auth.user;
     const role = user.roles?.[0] ?? 'employee';
     const tabs = tabConfig[role] ?? tabConfig.employee;
+    if (role !== 'gm' && !tabs.some((t) => t.href === '/tools')) {
+        tabs.push({ name: 'Tools', href: '/tools', icon: Calculator });
+    }
     const { url } = usePage();
     const [openGroup, setOpenGroup] = useState(null);
 

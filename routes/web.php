@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('billing', [SubscriptionsController::class, 'index'])->name('billing');
     Route::post('billing/checkout', [SubscriptionsController::class, 'checkout'])->name('billing.checkout');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('tools', fn () => \Inertia\Inertia::render('Tools'))->name('tools');
     Route::get('help', fn () => \Inertia\Inertia::render('Help'))->name('help');
 
     Route::get('work-orders', [WorkOrderController::class, 'index'])->name('work-orders.index');
