@@ -35,6 +35,7 @@ function TreeNode({ node, depth }) {
                 <span className="font-medium text-gray-900 text-sm">{node.name}</span>
                 {node.floor_number && <span className="text-xs text-gray-400">Floor {node.floor_number}</span>}
                 {node.code && <span className="text-xs text-gray-400">{node.code}</span>}
+                {node.is_event_venue && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-700 shrink-0" title="Shows in the event venue dropdown">✓ Venue</span>}
                 <Link href={`/locations/${node.id}/edit`} className="text-xs text-brand-600 hover:text-brand-700 ml-auto shrink-0" onClick={e => e.stopPropagation()}>
                     Edit
                 </Link>

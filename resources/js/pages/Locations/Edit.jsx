@@ -12,6 +12,7 @@ export default function Edit({ auth, location, buildings, areas }) {
         parent_id: location.parent_id ?? '',
         description: location.description ?? '',
         floor_number: location.floor_number ?? '',
+        is_event_venue: !!location.is_event_venue,
     });
 
     const submit = (e) => {
@@ -73,6 +74,11 @@ export default function Edit({ auth, location, buildings, areas }) {
                             <input type="text" value={data.floor_number} onChange={e => setData('floor_number', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required placeholder="e.g. 1st, 2nd, Ground" />
                         </div>
                     )}
+
+                    <label className="flex items-center gap-2 text-sm text-gray-700 bg-brand-50/50 rounded-xl px-3 py-2.5 cursor-pointer">
+                        <input type="checkbox" checked={!!data.is_event_venue} onChange={e => setData('is_event_venue', e.target.checked)} className="w-4 h-4 rounded text-brand-600 focus:ring-brand-400" />
+                        <span>✓ Use as event venue <span className="text-gray-400">(shows in the event venue dropdown)</span></span>
+                    </label>
 
                     <button type="submit" disabled={processing} className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
                         {processing ? 'Saving...' : 'Save Changes'}

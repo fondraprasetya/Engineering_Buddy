@@ -23,6 +23,7 @@ class LocationController extends Controller
                 'type' => $loc->type,
                 'code' => $loc->code,
                 'floor_number' => $loc->floor_number,
+                'is_event_venue' => (bool) $loc->is_event_venue,
                 'description' => $loc->description,
                 'parent_id' => $loc->parent_id,
                 'children' => $buildTree($loc->id),
@@ -54,6 +55,7 @@ class LocationController extends Controller
             'parent_id' => 'nullable|exists:locations,id',
             'description' => 'nullable|string|max:500',
             'floor_number' => 'nullable|string|max:50|required_if:type,room',
+            'is_event_venue' => 'nullable|boolean',
         ]);
 
         $prefixes = ['building' => 'BLD', 'area' => 'AR', 'room' => 'RM'];
@@ -99,6 +101,7 @@ class LocationController extends Controller
             'parent_id' => 'nullable|exists:locations,id',
             'description' => 'nullable|string|max:500',
             'floor_number' => 'nullable|string|max:50|required_if:type,room',
+            'is_event_venue' => 'nullable|boolean',
         ]);
 
         $location->update($validated);

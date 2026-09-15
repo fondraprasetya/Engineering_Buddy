@@ -11,7 +11,12 @@ class Location extends Model
 {
     use BelongsToTenant;
 
-    protected $fillable = ['name', 'type', 'parent_id', 'code', 'description', 'floor_number'];
+    protected $fillable = ['name', 'type', 'parent_id', 'code', 'description', 'floor_number', 'is_event_venue'];
+
+    protected function casts(): array
+    {
+        return ['is_event_venue' => 'boolean'];
+    }
 
     public function parent(): BelongsTo
     {
