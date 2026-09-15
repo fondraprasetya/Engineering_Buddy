@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
 
-function LocationSearch({ options, value, onChange }) {
+function SearchSelect({ options, value, onChange, placeholder, inputId }) {
     const [query, setQuery] = useState('');
     const [open, setOpen] = useState(false);
     const selected = options.find(o => String(o.id) === String(value));
@@ -14,13 +14,13 @@ function LocationSearch({ options, value, onChange }) {
         <div className="relative">
             <div className="flex gap-2">
                 <input
-                    id="location_search"
+                    id={inputId ?? 'search_select'}
                     type="text"
                     value={selected ? selected.label : query}
                     onChange={e => { if (selected) onChange(''); setQuery(e.target.value); setOpen(true); }}
                     onFocus={() => setOpen(true)}
                     onBlur={() => setTimeout(() => setOpen(false), 150)}
-                    placeholder={selected ? selected.label : 'Type to search location…'}
+                    placeholder={selected ? selected.label : (placeholder ?? 'Type to search…')}
                     className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400 focus:border-transparent"
                 />
                 {(selected || query) && (
@@ -112,23 +112,21 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="asset_id" className="block text-sm font-medium text-gray-700 mb-1">Asset (optional)</label>
-                        <select
-                            id="asset_id"
+                        <label htmlFor="asset_search" className="block text-sm font-medium text-gray-700 mb-1">Asset (optional)</label>
+                        <SearchSelect
+                            inputId="asset_search"
+                            placeholder="Type to search asset…"
+                            options={(assets ?? []).map(a => ({ id: a.id, label: `${a.name} (${a.code})` }))}
                             value={data.asset_id}
-                            onChange={(e) => setData('asset_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400 focus:border-transparent"
-                        >
-                            <option value="">No asset</option>
-                            {assets?.map((asset) => (
-                                <option key={asset.id} value={asset.id}>{asset.name} ({asset.code})</option>
-                            ))}
-                        </select>
+                            onChange={(id) => setData('asset_id', id)}
+                        />
                     </div>
 
                     <div>
                         <label htmlFor="location_search" className="block text-sm font-medium text-gray-700 mb-1">Location (optional)</label>
-                        <LocationSearch
+                        <SearchSelect
+                            inputId="location_search"
+                            placeholder="Type to search location…"
                             options={locationOptions ?? []}
                             value={data.location_id}
                             onChange={(id) => setData('location_id', id)}
@@ -151,18 +149,14 @@ export default function Create({ auth, assets, projects, locationOptions }) {
                     </div>
 
                     <div>
-                        <label htmlFor="project_id" className="block text-sm font-medium text-gray-700 mb-1">Project (optional)</label>
-                        <select
-                            id="project_id"
+                        <label htmlFor="project_search" className="block text-sm font-medium text-gray-700 mb-1">Project (optional)</label>
+                        <SearchSelect
+                            inputId="project_search"
+                            placeholder="Type to search project…"
+                            options={(projects ?? []).map(p => ({ id: p.id, label: p.name }))}
                             value={data.project_id}
-                            onChange={(e) => setData('project_id', e.target.value)}
-                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400 focus:border-transparent"
-                        >
-                            <option value="">No project</option>
-                            {projects?.map((p) => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
+                            onChange={(id) => setData('project_id', id)}
+                        />
                     </div>
 
                     <div>
