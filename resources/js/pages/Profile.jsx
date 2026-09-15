@@ -54,6 +54,82 @@ export default function Profile({ auth, telegramStatus: initialTelegramStatus })
         }
     };
 
+    const [pushState, setPushState] = useState('unknown'); // unknown|on|off|unsupported|denied
+    const [pushBusy, setPushBusy] = useState(false);
+
+    const csrf = () => document.querySelector('meta[name=csrf-token]')?.content ?? '';
+    const vapidKey = () => document.querySelector('meta[name=vapid-public-key]')?.content ?? '';
+
+    const checkPush = async () => {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            setPushState('unsupported');
+            return;
+        }
+        if (Notification.permission === 'denied') {
+            setPushState('denied');
+            return;
+        }
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            setPushState(sub ? 'on' : 'off');
+        } catch {
+            setPushState('unsupported');
+        }
+    };
+
+    const enablePush = async () => {
+        setPushBusy(true);
+        try {
+            const perm = await Notification.requestPermission();
+            if (perm !== 'granted') {
+                setPushState('denied');
+                return;
+            }
+            const reg = await navigator.serviceWorker.ready;
+            const key = vapidKey();
+            if (!key) throw new Error('no key');
+            const sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: Uint8Array.from(atob(key.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)),
+            });
+            const json = sub.toJSON();
+            const res = await fetch('/api/v1/push/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
+            });
+            setPushState(res.ok ? 'on' : 'unsupported');
+        } catch {
+            setPushState('unsupported');
+        } finally {
+            setPushBusy(false);
+        }
+    };
+
+    const disablePush = async () => {
+        setPushBusy(true);
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) {
+                await fetch('/api/v1/push/unsubscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                    body: JSON.stringify({ endpoint: sub.endpoint }),
+                });
+                await sub.unsubscribe();
+            }
+            setPushState('off');
+        } finally {
+            setPushBusy(false);
+        }
+    };
+
+    if (pushState === 'unknown' && typeof window !== 'undefined') {
+        checkPush();
+    }
+
     return (
         <AuthenticatedLayout auth={auth}>
             <Head title="Profile" />
@@ -151,6 +227,32 @@ export default function Profile({ auth, telegramStatus: initialTelegramStatus })
                                 </button>
                             )}
                         </div>
+                    )}
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-sm p-6">
+                    <h3 className="font-semibold text-gray-900 mb-3">📱 Phone Notifications</h3>
+                    {pushState === 'on' && (
+                        <div>
+                            <p className="text-sm text-green-600 mb-3">✅ This device receives push notifications.</p>
+                            <button onClick={disablePush} disabled={pushBusy} className="bg-red-600 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+                                {pushBusy ? 'Working...' : 'Turn off'}
+                            </button>
+                        </div>
+                    )}
+                    {pushState === 'off' && (
+                        <div>
+                            <p className="text-sm text-gray-600 mb-3">Get approvals, reminders, and billing alerts as phone notifications, even with the app closed.</p>
+                            <button onClick={enablePush} disabled={pushBusy} className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
+                                {pushBusy ? 'Enabling...' : 'Enable notifications'}
+                            </button>
+                        </div>
+                    )}
+                    {pushState === 'denied' && (
+                        <p className="text-sm text-gray-500">Notifications are blocked for this site. Allow them in your browser/app settings to enable.</p>
+                    )}
+                    {pushState === 'unsupported' && (
+                        <p className="text-sm text-gray-500">Push notifications aren’t supported in this browser. Use Chrome on Android or the EngBuddy app.</p>
                     )}
                 </div>
             </div>

@@ -6,6 +6,35 @@ self.addEventListener('install', (e) => {
   );
 });
 self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+self.addEventListener('push', (e) => {
+  let data = { title: 'Engineering Buddy', body: 'You have a new notification.', url: '/notifications' };
+  try {
+    if (e.data) data = Object.assign(data, e.data.json());
+  } catch (_) {}
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      data: { url: data.url || '/notifications' },
+    })
+  );
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/notifications';
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const c of clients) {
+        if ('focus' in c) {
+          c.navigate(url);
+          return c.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
+});
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(

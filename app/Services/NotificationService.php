@@ -43,8 +43,63 @@ class NotificationService
         ]);
 
         $this->sendTelegramIfLinked($user, $type, $data);
+        $this->sendPushIfSubscribed($user, $type, $data);
 
         return $notification;
+    }
+
+    private function sendPushIfSubscribed(User $user, string $type, array $data): void
+    {
+        if (! class_exists(\Minishlink\WebPush\WebPush::class)) {
+            return;
+        }
+        $vapid = config('services.vapid');
+        if (empty($vapid['public_key']) || empty($vapid['private_key'])) {
+            return;
+        }
+
+        $subs = \App\Models\PushSubscription::where('user_id', $user->id)->get();
+        if ($subs->isEmpty()) {
+            return;
+        }
+
+        $title = 'Engineering Buddy';
+        $body = $this->pushBody($type, $data);
+
+        try {
+            $webPush = new \Minishlink\WebPush\WebPush([
+                'VAPID' => [
+                    'subject' => $vapid['subject'],
+                    'publicKey' => $vapid['public_key'],
+                    'privateKey' => $vapid['private_key'],
+                ],
+            ]);
+            foreach ($subs as $sub) {
+                $webPush->queueNotification(
+                    \Minishlink\WebPush\Subscription::create([
+                        'endpoint' => $sub->endpoint,
+                        'keys' => ['p256dh' => $sub->p256dh, 'auth' => $sub->auth],
+                    ]),
+                    json_encode(['title' => $title, 'body' => $body, 'url' => '/notifications'])
+                );
+            }
+            foreach ($webPush->flush() as $report) {
+                if (! $report->isSuccess() && in_array($report->getResponse()->getStatusCode() ?? 0, [404, 410], true)) {
+                    \App\Models\PushSubscription::where('endpoint', hash('sha256', (string) $report->getRequest()->getUri()))->delete();
+                }
+            }
+        } catch (\Throwable) {
+            // Push is best-effort; in-app + Telegram already delivered.
+        }
+    }
+
+    private function pushBody(string $type, array $data): string
+    {
+        return match ($type) {
+            'billing_trial_ending' => 'Your trial ends in '.($data['days'] ?? '?').' day(s). Upgrade to keep access.',
+            'billing_past_due' => 'Your subscription is inactive. Resume from the Billing page.',
+            default => ucfirst(str_replace('_', ' ', $type)),
+        };
     }
 
     private function sendTelegramIfLinked(User $user, string $type, array $data): void
