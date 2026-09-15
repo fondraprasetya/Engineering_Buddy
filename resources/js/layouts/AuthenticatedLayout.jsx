@@ -95,7 +95,7 @@ export default function AuthenticatedLayout({ auth, children }) {
     const { url } = usePage();
     const [openGroup, setOpenGroup] = useState(null);
 
-    const trial = auth.subscription?.status === 'trial' ? auth.subscription : null;
+    const trial = auth.subscription?.status === 'trial' && !url.startsWith('/billing') ? auth.subscription : null;
     const [showTrial, setShowTrial] = useState(() => {
         if (!trial) return false;
         try {
@@ -140,7 +140,7 @@ export default function AuthenticatedLayout({ auth, children }) {
                         <h3 className="text-lg font-bold text-gray-900 mb-1">Free trial: {trial.days_left} day{trial.days_left !== 1 ? 's' : ''} left</h3>
                         <p className="text-sm text-gray-500 mb-4">Your trial ends on {trial.ends_on}. Subscribe to keep your facility running without interruption.</p>
                         <div className="flex gap-2">
-                            <Link href="/billing" className="flex-1 bg-brand-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-brand-700 text-center">
+                            <Link href="/billing" onClick={dismissTrial} className="flex-1 bg-brand-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-brand-700 text-center">
                                 View plans
                             </Link>
                             <button onClick={dismissTrial} className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-2 text-sm font-medium hover:bg-gray-50">
