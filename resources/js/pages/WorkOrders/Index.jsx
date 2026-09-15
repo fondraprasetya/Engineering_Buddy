@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 const statuses = [
     'draft', 'pending_dept_head', 'pending_chief_engineer', 'rejected', 'approved',
@@ -25,6 +26,7 @@ const statusColors = {
 };
 
 export default function Index({ auth, workOrders, filters }) {
+    const { t } = useLang();
     const role = auth.user.roles?.[0] ?? 'employee';
     const [status, setStatus] = useState(filters?.status ?? '');
     const [priority, setPriority] = useState(filters?.priority ?? '');
@@ -37,59 +39,59 @@ export default function Index({ auth, workOrders, filters }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Work Orders" />
+            <Head title={t('wo.title')} />
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-900">Work Orders</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('wo.title')}</h2>
                     {role !== 'gm' && (
                         <Link
                             href="/work-orders/create"
                             className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600"
                         >
-                            New Work Order
+                            {t('wo.new')}
                         </Link>
                     )}
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-3 flex items-end gap-2 flex-wrap">
                     <div className="min-w-[140px] flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.status')}</label>
                         <select value={status} onChange={e => setStatus(e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400">
-                            <option value="">All Statuses</option>
+                            <option value="">{t('wo.all_statuses')}</option>
                             {statuses.map(s => (
-                                <option key={s} value={s}>{s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>
+                                <option key={s} value={s}>{t('st.' + s)}</option>
                             ))}
                         </select>
                     </div>
                     <div className="min-w-[120px] flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Priority</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('wo.f_priority')}</label>
                         <select value={priority} onChange={e => setPriority(e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400">
-                            <option value="">All Priorities</option>
+                            <option value="">{t('wo.all_priorities')}</option>
                             {priorities.map(p => (
-                                <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+                                <option key={p} value={p}>{t('pr.' + p)}</option>
                             ))}
                         </select>
                     </div>
                     <div className="min-w-[130px] flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">From</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.from')}</label>
                         <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                     </div>
                     <div className="min-w-[130px] flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">To</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.to')}</label>
                         <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                     </div>
                     <button onClick={applyFilters}
-                        className="bg-brand-400 text-white rounded-xl px-4 py-1.5 text-sm font-medium hover:bg-brand-600 shrink-0">Filter</button>
+                        className="bg-brand-400 text-white rounded-xl px-4 py-1.5 text-sm font-medium hover:bg-brand-600 shrink-0">{t('wo.filter')}</button>
                 </div>
 
                 {workOrders.data.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">
-                        No work orders found.
+                        {t('wo.empty')}
                     </div>
                 ) : (
                     <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.04 } } }} className="space-y-3">
@@ -115,7 +117,7 @@ export default function Index({ auth, workOrders, filters }) {
                                             )}
                                         </div>
                                         <span className={`text-xs font-medium px-2 py-1 rounded-full ml-3 ${statusColors[wo.status] ?? 'bg-gray-100 text-gray-700'}`}>
-                                            {wo.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                            {t('st.' + wo.status)}
                                         </span>
                                     </div>
                                 </Link>
