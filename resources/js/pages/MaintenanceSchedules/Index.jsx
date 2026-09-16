@@ -2,19 +2,21 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
-
-const freqLabel = (s) =>
-    ({ daily:'Daily', weekly:'Weekly', monthly:'Monthly', quarterly:'Quarterly', 'bi-annual':'Bi-Annual', annual:'Annual', fixed_days:`Every ${s.frequency_value} days`, calendar:`Every ${s.frequency_value} month(s)`, usage:`Every ${s.frequency_value} units` })[s.frequency_type] ?? s.frequency_type;
+import { useLang } from '../../i18n';
 
 function ScheduleCard({ s }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
+    const freqLabel = (x) =>
+        ({ daily: t('ms.freq_daily'), weekly: t('ms.freq_weekly'), monthly: t('ms.freq_monthly'), quarterly: t('ms.freq_quarterly'), 'bi-annual': t('ms.freq_biannual'), annual: t('ms.freq_annual'), fixed_days: `${t('ms.every_prefix')} ${x.frequency_value} ${t('ms.every_days')}`, calendar: `${t('ms.every_prefix')} ${x.frequency_value} ${t('ms.every_months')}`, usage: `${t('ms.every_prefix')} ${x.frequency_value} ${t('ms.every_units')}` })[x.frequency_type] ?? x.frequency_type;
     const status = s.status ?? (s.is_active ? (new Date(s.next_due_date) < new Date() ? 'overdue' : 'scheduled') : 'inactive');
     const isComplete = status === 'complete';
     const isOverdue = status === 'overdue';
     const badge = {
-        complete: { text: 'Complete', cls: 'bg-green-100 text-green-700' },
-        overdue: { text: 'Overdue', cls: 'bg-red-100 text-red-700' },
-        inactive: { text: 'Inactive', cls: 'bg-gray-200 text-gray-600' },
-        scheduled: { text: 'Scheduled', cls: 'bg-blue-100 text-blue-700' },
+        complete: { text: t('ms.st_complete'), cls: 'bg-green-100 text-green-700' },
+        overdue: { text: t('ms.st_overdue'), cls: 'bg-red-100 text-red-700' },
+        inactive: { text: t('ms.st_inactive'), cls: 'bg-gray-200 text-gray-600' },
+        scheduled: { text: t('ms.st_scheduled'), cls: 'bg-blue-100 text-blue-700' },
     }[status];
     const [assignOpen, setAssignOpen] = useState(false);
     const [technicians, setTechnicians] = useState(null);
@@ -64,52 +66,52 @@ function ScheduleCard({ s }) {
                 <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-900 truncate">
-                            {s.title || 'Maintenance Schedule'}
+                            {s.title || t('ms.default_title')}
                             <span className="text-xs font-normal text-gray-400 ml-1">#{s.id}</span>
                         </p>
                         <p className="text-sm text-gray-500">
                             {freqLabel(s)}
                         </p>
                         <p className="text-sm mt-0.5">
-                            Next due: <span className={isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}>{new Date(s.next_due_date).toLocaleDateString()}</span>
-                            {isComplete && <span className="ml-2 text-xs text-green-600">Linked WO complete</span>}
+                            {t('ms.next_due')}: <span className={isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}>{new Date(s.next_due_date).toLocaleDateString(locale)}</span>
+                            {isComplete && <span className="ml-2 text-xs text-green-600">{t('ms.linked_wo')}</span>}
                         </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0 ml-3">
                         {badge && <span className={`text-xs font-medium px-2 py-1 rounded-full ${badge.cls}`}>{badge.text}</span>}
                         <button onClick={toggle} className={`text-xs font-medium px-2 py-1 rounded-full border ${s.is_active ? 'border-yellow-300 text-yellow-700 hover:bg-yellow-50' : 'border-green-300 text-green-700 hover:bg-green-50'}`}>
-                            {s.is_active ? 'Inactivate' : 'Activate'}
+                            {s.is_active ? t('ms.inactivate') : t('ms.activate')}
                         </button>
                         <div className="relative">
                             <button onClick={loadAvailable} className="text-xs font-medium px-2 py-1 rounded-full border border-brand-300 text-brand-700 hover:bg-brand-50">
-                                Assign
+                                {t('ms.assign')}
                             </button>
                             {assignOpen && (
                                 <div className="absolute right-0 top-full mt-1 z-10 w-56 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 max-h-64 overflow-auto">
-                                    <p className="text-xs text-gray-500 px-2 py-1">Available {new Date(s.next_due_date).toLocaleDateString()}</p>
+                                    <p className="text-xs text-gray-500 px-2 py-1">{t('ms.available')} {new Date(s.next_due_date).toLocaleDateString(locale)}</p>
                                     {loading ? (
-                                        <p className="text-xs text-gray-400 px-2 py-1.5">Loading...</p>
+                                        <p className="text-xs text-gray-400 px-2 py-1.5">{t('ms.loading')}</p>
                                     ) : technicians?.length ? (
-                                        technicians.map(t => (
-                                            <button key={t.id} onClick={() => assign(t.id)} className="w-full text-left text-sm px-2 py-1.5 rounded-lg hover:bg-gray-100">
-                                                {t.name}
+                                        technicians.map(tc => (
+                                            <button key={tc.id} onClick={() => assign(tc.id)} className="w-full text-left text-sm px-2 py-1.5 rounded-lg hover:bg-gray-100">
+                                                {tc.name}
                                             </button>
                                         ))
                                     ) : (
-                                        <p className="text-xs text-gray-400 px-2 py-1.5">No technicians available</p>
+                                        <p className="text-xs text-gray-400 px-2 py-1.5">{t('ms.no_techs')}</p>
                                     )}
                                 </div>
                             )}
                         </div>
                         <Link href={`/maintenance-schedules/${s.id}/edit`} className="text-xs font-medium px-2 py-1 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-50">
-                            Edit
+                            {t('ms.edit')}
                         </Link>
                     </div>
                 </div>
                 <div className="mt-2 text-xs text-gray-400">
-                    {s.checklistTemplate?.name && <span>Template: {s.checklistTemplate.name}</span>}
-                    {s.default_technician && <span className="ml-3">Tech: {s.default_technician.name}</span>}
-                    {s.workOrder && <span className="ml-3">Work Order: <a className="text-brand-600 hover:underline" href={`/work-orders/${s.workOrder.id}`}>#{s.workOrder.id}</a></span>}
+                    {s.checklistTemplate?.name && <span>{t('ms.template')}: {s.checklistTemplate.name}</span>}
+                    {s.default_technician && <span className="ml-3">{t('ms.tech')}: {s.default_technician.name}</span>}
+                    {s.workOrder && <span className="ml-3">{t('ms.work_order')}: <a className="text-brand-600 hover:underline" href={`/work-orders/${s.workOrder.id}`}>#{s.workOrder.id}</a></span>}
                 </div>
             </div>
         </motion.div>
@@ -117,6 +119,7 @@ function ScheduleCard({ s }) {
 }
 
 export default function Index({ auth, grouped, overdueCount, inactiveCount, selectedMonth, selectedStatus }) {
+    const { t } = useLang();
     const [month, setMonth] = useState(selectedMonth);
     const [status, setStatus] = useState(selectedStatus);
 
@@ -128,37 +131,37 @@ export default function Index({ auth, grouped, overdueCount, inactiveCount, sele
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Maintenance Schedules" />
+            <Head title={t('ms.title')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Maintenance Schedules</h2>
+                        <h2 className="text-xl font-semibold text-gray-900">{t('ms.title')}</h2>
                         <div className="flex gap-3 text-sm mt-1">
-                            {overdueCount > 0 && <span className="text-red-600 font-medium">{overdueCount} overdue</span>}
-                            {inactiveCount > 0 && <span className="text-gray-400">{inactiveCount} inactive</span>}
+                            {overdueCount > 0 && <span className="text-red-600 font-medium">{overdueCount} {t('ms.overdue')}</span>}
+                            {inactiveCount > 0 && <span className="text-gray-400">{inactiveCount} {t('ms.inactive_w')}</span>}
                         </div>
                     </div>
-                    <Link href="/maintenance-schedules/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Schedule</Link>
+                    <Link href="/maintenance-schedules/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('ms.new')}</Link>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-4 flex items-end gap-3">
                     <div className="flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Month</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('ms.month')}</label>
                         <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" />
                     </div>
                     <div className="flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('ms.status')}</label>
                         <select value={status} onChange={e => setStatus(e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
-                            <option value="all">All</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="all">{t('ms.all')}</option>
+                            <option value="active">{t('ms.active')}</option>
+                            <option value="inactive">{t('ms.inactive_opt')}</option>
                         </select>
                     </div>
-                    <button onClick={applyFilters} className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600 shrink-0">Filter</button>
+                    <button onClick={applyFilters} className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600 shrink-0">{t('ms.filter')}</button>
                 </div>
 
                 {entries.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No maintenance schedules found for this period.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('ms.empty')}</div>
                 ) : (
                     <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.04 } } }} className="space-y-6">
                         {entries.map(([title, scheduleList]) => (
