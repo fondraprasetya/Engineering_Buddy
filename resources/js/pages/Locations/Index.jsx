@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 const typeColors = {
     building: 'bg-brand-50 text-brand-700',
@@ -9,9 +10,9 @@ const typeColors = {
     room: 'bg-orange-100 text-orange-700',
 };
 
-const depthLabels = ['Building', 'Floor', 'Area', 'Room'];
-
 function TreeNode({ node, depth }) {
+    const { t } = useLang();
+    const depthLabels = [t('loc.depth_building'), t('loc.depth_floor'), t('loc.depth_area'), t('loc.depth_room')];
     const [open, setOpen] = useState(depth < 2);
     const hasChildren = node.children?.length > 0;
 
@@ -33,11 +34,11 @@ function TreeNode({ node, depth }) {
                     </span>
                 )}
                 <span className="font-medium text-gray-900 text-sm">{node.name}</span>
-                {node.floor_number && <span className="text-xs text-gray-400">Floor {node.floor_number}</span>}
+                {node.floor_number && <span className="text-xs text-gray-400">{t('loc.floor')} {node.floor_number}</span>}
                 {node.code && <span className="text-xs text-gray-400">{node.code}</span>}
-                {node.is_event_venue && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-700 shrink-0" title="Shows in the event venue dropdown">✓ Venue</span>}
+                {node.is_event_venue && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-700 shrink-0" title={t('loc.venue_tip')}>{t('loc.venue')}</span>}
                 <Link href={`/locations/${node.id}/edit`} className="text-xs text-brand-600 hover:text-brand-700 ml-auto shrink-0" onClick={e => e.stopPropagation()}>
-                    Edit
+                    {t('loc.edit')}
                 </Link>
             </div>
             <AnimatePresence>
@@ -60,17 +61,18 @@ function TreeNode({ node, depth }) {
 }
 
 export default function Index({ auth, tree }) {
+    const { t } = useLang();
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Locations" />
+            <Head title={t('loc.title')} />
             <div className="max-w-2xl mx-auto space-y-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-900">Locations</h2>
-                    <Link href="/locations/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Location</Link>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('loc.title')}</h2>
+                    <Link href="/locations/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('loc.new')}</Link>
                 </div>
 
                 {tree.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No locations found.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('loc.empty')}</div>
                 ) : (
                     <div className="space-y-1">
                         {tree.map(node => (

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 const rp = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
 
 export default function Create({ auth, assets }) {
+    const { t } = useLang();
     const { data, setData, post, processing, errors } = useForm({
         name: '', description: '',
         checkpoints: [{ title: '', due_date: '' }],
@@ -55,26 +57,26 @@ export default function Create({ auth, assets }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Create Project" />
+            <Head title={t('proj.create_title')} />
             <div className="max-w-lg mx-auto">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Create Project</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('proj.create_title')}</h2>
                 <form onSubmit={submit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
                     {errors.name && <div className="bg-red-50 text-red-600 text-sm rounded-xl p-3">{errors.name}</div>}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('proj.name_f')}</label>
                         <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('proj.desc_f')}</label>
                         <textarea value={data.description} onChange={e => setData('description', e.target.value)} rows={3} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Linked Asset (optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('proj.linked_asset')}</label>
                         <select value={data.asset_id} onChange={e => setData('asset_id', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
-                            <option value="">— No asset —</option>
+                            <option value="">{t('proj.no_asset')}</option>
                             {assets?.map(a => (
                                 <option key={a.id} value={a.id}>{a.name} ({a.code})</option>
                             ))}
@@ -83,8 +85,8 @@ export default function Create({ auth, assets }) {
 
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm font-medium text-gray-700">Progress Checkpoints</label>
-                            <button type="button" onClick={addCheckpoint} className="text-sm text-brand-600 hover:text-brand-700 font-medium">+ Add Checkpoint</button>
+                            <label className="block text-sm font-medium text-gray-700">{t('proj.checkpoints')}</label>
+                            <button type="button" onClick={addCheckpoint} className="text-sm text-brand-600 hover:text-brand-700 font-medium">{t('proj.add_checkpoint')}</button>
                         </div>
                         {errors['checkpoints'] && <div className="bg-red-50 text-red-600 text-sm rounded-xl p-3 mb-2">{errors['checkpoints']}</div>}
                         <div className="space-y-2">
@@ -92,7 +94,7 @@ export default function Create({ auth, assets }) {
                                 <div key={i} className="flex gap-2 items-start p-2 rounded-xl border border-gray-200">
                                     <div className="flex-1 min-w-0">
                                         <input
-                                            type="text" placeholder="Checkpoint title"
+                                            type="text" placeholder={t('proj.checkpoint_ph')}
                                             value={cp.title}
                                             onChange={e => updateCheckpoint(i, 'title', e.target.value)}
                                             className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400 mb-1"
@@ -114,8 +116,8 @@ export default function Create({ auth, assets }) {
 
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm font-medium text-gray-700">Budget Items</label>
-                            <button type="button" onClick={addItem} className="text-sm text-brand-600 hover:text-brand-700 font-medium">+ Add Item</button>
+                            <label className="block text-sm font-medium text-gray-700">{t('proj.budget_items')}</label>
+                            <button type="button" onClick={addItem} className="text-sm text-brand-600 hover:text-brand-700 font-medium">{t('proj.add_item')}</button>
                         </div>
                         {errors['budget_items'] && <div className="bg-red-50 text-red-600 text-sm rounded-xl p-3 mb-2">{errors['budget_items']}</div>}
                         <div className="space-y-2">
@@ -123,20 +125,20 @@ export default function Create({ auth, assets }) {
                                 <div key={i} className="flex gap-2 items-start p-2 rounded-xl border border-gray-200">
                                     <div className="flex-1 min-w-0">
                                         <input
-                                            type="text" placeholder="Description"
+                                            type="text" placeholder={t('proj.desc_ph')}
                                             value={item.description}
                                             onChange={e => updateItem(i, 'description', e.target.value)}
                                             className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400 mb-1"
                                         />
                                         <div className="flex gap-2">
                                             <input
-                                                type="number" min="0" step="1" placeholder="Qty"
+                                                type="number" min="0" step="1" placeholder={t('proj.qty')}
                                                 value={item.qty}
                                                 onChange={e => updateItem(i, 'qty', e.target.value)}
                                                 className="w-20 rounded border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400"
                                             />
                                             <input
-                                                type="number" min="0" step="0.01" placeholder="Amount"
+                                                type="number" min="0" step="0.01" placeholder={t('proj.unit_price')}
                                                 value={item.amount}
                                                 onChange={e => updateItem(i, 'amount', e.target.value)}
                                                 className="flex-1 rounded border border-gray-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-400"
@@ -154,12 +156,12 @@ export default function Create({ auth, assets }) {
                             ))}
                         </div>
                         <div className="text-right text-sm font-semibold text-gray-900 mt-2">
-                            Total: {rp(total)}
+                            {t('proj.total')}: {rp(total)}
                         </div>
                     </div>
 
                     <button type="submit" disabled={processing} className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                        {processing ? 'Creating...' : 'Create Project'}
+                        {processing ? t('proj.creating') : t('proj.create_btn')}
                     </button>
                 </form>
             </div>
