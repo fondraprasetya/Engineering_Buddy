@@ -3,12 +3,19 @@ import { Head } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS_ID = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316'];
 
 export default function Index({ auth, venues = [] }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
+    const monthNames = lang === 'id' ? MONTHS_ID : MONTHS;
+    const dayNames = lang === 'id' ? DAYS_ID : DAYS;
     const today = new Date();
     const [view, setView] = useState('month');
     const [year, setYear] = useState(today.getFullYear());
@@ -310,7 +317,7 @@ export default function Index({ auth, venues = [] }) {
 
         if (isStat) {
             const payload = cleanPayload({
-                title: form.title || 'Daily Statistics',
+                title: form.title || t('cal.daily_stats'),
                 all_day: 1,
                 start_datetime: `${statDate}T00:00`,
                 end_datetime: `${statDate}T23:59`,
@@ -377,7 +384,7 @@ export default function Index({ auth, venues = [] }) {
             fetchEvents();
         } else {
             const data = await res.json().catch(() => ({}));
-            const msg = data?.message || data?.errors ? Object.values(data.errors).flat().join(', ') : 'Failed to save event';
+            const msg = data?.message || data?.errors ? Object.values(data.errors).flat().join(', ') : t('cal.save_fail');
             setFormError(msg);
         }
     };
@@ -423,7 +430,7 @@ export default function Index({ auth, venues = [] }) {
                         </button>
                     ))}
                     {evts.length > 3 && (
-                        <span className="text-xs text-gray-400 pl-1">+{evts.length - 3} more</span>
+                        <span className="text-xs text-gray-400 pl-1">+{evts.length - 3} {t('cal.more')}</span>
                     )}
                 </div>
             </div>
@@ -432,7 +439,7 @@ export default function Index({ auth, venues = [] }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Calendar" />
+            <Head title={t('cal.title')} />
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
@@ -444,7 +451,7 @@ export default function Index({ auth, venues = [] }) {
                                 setView(v);
                             }}
                                 className={`px-3 py-1 text-xs font-medium rounded-md capitalize ${view === v ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                                {v}
+                                {t('cal.' + v)}
                             </button>
                         ))}
                     </div>
@@ -454,17 +461,17 @@ export default function Index({ auth, venues = [] }) {
                         </button>
                         {view === 'day' && (
                             <span className="text-base font-medium min-w-[200px] text-center">
-                                {focusDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                                {focusDate.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                             </span>
                         )}
                         {view === 'week' && (
                             <span className="text-base font-medium min-w-[200px] text-center">
-                                Week of {new Date(focusDate.getFullYear(), focusDate.getMonth(), focusDate.getDate() - focusDate.getDay()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                {t('cal.week_of')} {new Date(focusDate.getFullYear(), focusDate.getMonth(), focusDate.getDate() - focusDate.getDay()).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}
                             </span>
                         )}
                         {view === 'month' && (
                             <span className="text-base font-medium min-w-[180px] text-center">
-                                {MONTHS[month]} {year}
+                                {monthNames[month]} {year}
                             </span>
                         )}
                         <button onClick={goNext} className="p-2 rounded-xl hover:bg-brand-50 text-gray-600">
@@ -474,22 +481,22 @@ export default function Index({ auth, venues = [] }) {
                 </div>
 
                 {loading ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-12 text-center text-gray-400">Loading...</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-12 text-center text-gray-400">{t('cal.loading')}</div>
                 ) : view === 'day' ? (
                     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                         <div className="flex gap-2 p-2 border-b border-gray-100">
                             <button onClick={() => openCreateModal(focusDate, 0, 'event')}
                                 className="px-3 py-1 text-xs font-medium text-white bg-brand-400 rounded-xl hover:bg-brand-600">
-                                + Create Event
+                                {t('cal.create_event')}
                             </button>
                             <button onClick={() => openCreateModal(focusDate, 0, 'statistic')}
                                 className="px-3 py-1 text-xs font-medium text-green-700 bg-green-50 rounded-xl hover:bg-green-100">
-                                Record Statistic
+                                {t('cal.record_stat')}
                             </button>
                         </div>
                         <div className="divide-y divide-gray-100">
                             {eventsForDay(focusDate).length === 0 ? (
-                                <div className="p-8 text-center text-gray-400 text-sm">No events for this day</div>
+                                <div className="p-8 text-center text-gray-400 text-sm">{t('cal.no_events')}</div>
                             ) : eventsForDay(focusDate).map(evt => (
                                 <div key={evt.id}
                                     onClick={() => openEditModal(evt)}
@@ -498,10 +505,10 @@ export default function Index({ auth, venues = [] }) {
                                     <div className="flex-1 min-w-0">
                                         <div className="text-sm font-medium text-gray-900 truncate">{evt.title}</div>
                                         <div className="text-xs text-gray-500 mt-0.5">
-                                            {evt.all_day ? 'All day' : (
-                                                new Date(evt.start_datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) +
+                                            {evt.all_day ? t('cal.all_day') : (
+                                                new Date(evt.start_datetime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) +
                                                 ' – ' +
-                                                new Date(evt.end_datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                                                new Date(evt.end_datetime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
                                             )}
                                         </div>
                                         {evt.description && <div className="text-xs text-gray-400 mt-0.5 truncate">{evt.description}</div>}
@@ -513,7 +520,7 @@ export default function Index({ auth, venues = [] }) {
                 ) : view === 'week' ? (
                     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                         <div className="grid grid-cols-7 border-b border-gray-200">
-                            {DAYS.map((d, i) => {
+                            {dayNames.map((d, i) => {
                                 const dayDate = new Date(focusDate.getFullYear(), focusDate.getMonth(), focusDate.getDate() - focusDate.getDay() + i);
                                 const isToday = dayDate.toDateString() === today.toDateString();
                                 return (
@@ -525,7 +532,7 @@ export default function Index({ auth, venues = [] }) {
                             })}
                         </div>
                         <div className="grid grid-cols-7">
-                            {DAYS.map((d, i) => {
+                            {dayNames.map((d, i) => {
                                 const dayDate = new Date(focusDate.getFullYear(), focusDate.getMonth(), focusDate.getDate() - focusDate.getDay() + i);
                                 const evts = eventsForDay(dayDate);
                                 return (
@@ -535,11 +542,11 @@ export default function Index({ auth, venues = [] }) {
                                                 onClick={(e) => { e.stopPropagation(); openEditModal(evt); }}
                                                 className="block w-full text-left truncate rounded px-1 py-0.5 text-xs font-medium text-white hover:opacity-80 mb-0.5"
                                                 style={{ backgroundColor: evt.color || '#3B82F6' }}>
-                                                {evt.all_day ? '' : new Date(evt.start_datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + ' '}
+                                                {evt.all_day ? '' : new Date(evt.start_datetime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) + ' '}
                                                 {evt.title}
                                             </button>
                                         ))}
-                                        {evts.length > 4 && <span className="text-xs text-gray-400">+{evts.length - 4} more</span>}
+                                        {evts.length > 4 && <span className="text-xs text-gray-400">+{evts.length - 4} {t('cal.more')}</span>}
                                     </div>
                                 );
                             })}
@@ -548,7 +555,7 @@ export default function Index({ auth, venues = [] }) {
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                         <div className="grid grid-cols-7 border-b border-gray-200">
-                            {DAYS.map(d => (
+                            {dayNames.map(d => (
                                 <div key={d} className="text-center text-xs font-medium text-gray-500 py-2 uppercase tracking-wider">{d}</div>
                             ))}
                         </div>
@@ -572,7 +579,7 @@ export default function Index({ auth, venues = [] }) {
                             className="fixed inset-x-4 top-10 bottom-10 sm:inset-x-auto sm:left-1/2 sm:top-20 sm:bottom-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md z-50 bg-white rounded-2xl shadow-xl overflow-y-auto"
                         >
                             <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-900">{editingEvent ? 'Edit Event' : (inputType === 'statistic' ? (statEventId ? 'Edit Statistic' : 'Record Statistic') : 'New Event')}</h3>
+                                <h3 className="text-sm font-semibold text-gray-900">{editingEvent ? t('cal.edit_event') : (inputType === 'statistic' ? (statEventId ? t('cal.edit_stat') : t('cal.record_stat')) : t('cal.new_event'))}</h3>
                                 <button onClick={closeModal} className="p-0.5 rounded-xl hover:bg-brand-50 text-gray-500"><X size={16} /></button>
                             </div>
 
@@ -580,11 +587,11 @@ export default function Index({ auth, venues = [] }) {
                                 <div className="flex border-b border-gray-200">
                                     <button type="button" onClick={() => setInputType('event')}
                                         className={`flex-1 py-2 text-xs font-medium text-center ${inputType === 'event' ? 'text-brand-600 border-b-2 border-brand-400' : 'text-gray-500 hover:text-gray-700'}`}>
-                                        Create Event
+                                        {t('cal.tab_event')}
                                     </button>
                                     <button type="button" onClick={() => setInputType('statistic')}
                                         className={`flex-1 py-2 text-xs font-medium text-center ${inputType === 'statistic' ? 'text-brand-600 border-b-2 border-brand-400' : 'text-gray-500 hover:text-gray-700'}`}>
-                                        Record Statistic
+                                        {t('cal.tab_stat')}
                                     </button>
                                 </div>
                             )}
@@ -596,7 +603,7 @@ export default function Index({ auth, venues = [] }) {
                                 {inputType === 'statistic' ? (
                                     <>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Date</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.date')}</label>
                                             <input type="date" disabled value={selectedDate ?? ''}
                                                 className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed" />
                                         </div>
@@ -605,27 +612,27 @@ export default function Index({ auth, venues = [] }) {
 
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">MTD Room Occupied</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.mtd_room_occ')}</label>
                                                 <input type="number" min="0" value={form.mtd_room_occupied} onChange={e => handleMtdChange('mtd_room_occupied', e.target.value)}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">MTD Room Available</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.mtd_room_avail')}</label>
                                                 <input type="number" min="0" value={form.mtd_room_available} onChange={e => handleMtdChange('mtd_room_available', e.target.value)}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">MTD Number of Guest</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.mtd_guests')}</label>
                                                 <input type="number" min="0" value={form.mtd_guest_count} onChange={e => handleMtdChange('mtd_guest_count', e.target.value)}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">MTD Restaurant Customer</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.mtd_resto')}</label>
                                                 <input type="number" min="0" value={form.mtd_restaurant_customer_count} onChange={e => handleMtdChange('mtd_restaurant_customer_count', e.target.value)}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">MTD MICE Customer</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.mtd_mice')}</label>
                                                 <input type="number" min="0" value={form.mtd_mice_customer} onChange={e => handleMtdChange('mtd_mice_customer', e.target.value)}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
@@ -635,27 +642,27 @@ export default function Index({ auth, venues = [] }) {
 
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">Room Occupied</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.room_occ')}</label>
                                                 <input type="number" disabled value={computeDaily('mtd_room_occupied', 'room_occupied')}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">Room Available</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.room_avail')}</label>
                                                 <input type="number" disabled value={computeDaily('mtd_room_available', 'room_available')}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed" />
                                             </div>
                                             <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Number of Guest</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.guests')}</label>
                                             <input type="number" disabled value={computeDaily('mtd_guest_count', 'guest_count')}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed" />
                                             </div>
                                             <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Restaurant Customer</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.resto')}</label>
                                             <input type="number" disabled value={computeDaily('mtd_restaurant_customer_count', 'restaurant_customer_count')}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed" />
                                             </div>
                                             <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Meeting Customer</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.meeting_cust')}</label>
                                             <input type="number" disabled value={computeDaily('mtd_mice_customer', 'meeting_customer_count')}
                                                     className="w-full rounded-xl border border-gray-300 px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed" />
                                             </div>
@@ -664,30 +671,30 @@ export default function Index({ auth, venues = [] }) {
                                 ) : (
                                     <>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Title</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.title_f')}</label>
                                             <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                                                 className="w-full rounded-xl border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-400" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Description</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.desc_f')}</label>
                                             <textarea rows={1} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                                                 className="w-full rounded-xl border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-400 resize-none" />
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <input type="checkbox" id="all_day" checked={form.all_day} onChange={e => setForm(f => ({ ...f, all_day: e.target.checked }))}
                                                 className="rounded border-gray-300 text-brand-600 focus:ring-brand-400" />
-                                            <label htmlFor="all_day" className="text-xs text-gray-700">All day</label>
+                                            <label htmlFor="all_day" className="text-xs text-gray-700">{t('cal.allday_cb')}</label>
                                         </div>
                                         <div className="grid grid-cols-2 gap-1.5">
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">Start</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.start')}</label>
                                                 <input type={form.all_day ? 'date' : 'datetime-local'} required
                                                     value={form.all_day ? form.start_datetime.slice(0, 10) : form.start_datetime}
                                                     onChange={e => setForm(f => ({ ...f, start_datetime: e.target.value }))}
                                                     className="w-full rounded-xl border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">End</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.end')}</label>
                                                 <input type={form.all_day ? 'date' : 'datetime-local'} required
                                                     value={form.all_day ? form.end_datetime.slice(0, 10) : form.end_datetime}
                                                     onChange={e => setForm(f => ({ ...f, end_datetime: e.target.value }))}
@@ -695,17 +702,17 @@ export default function Index({ auth, venues = [] }) {
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Venue</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.venue')}</label>
                                             <select value={form.venue} onChange={e => setForm(f => ({ ...f, venue: e.target.value }))}
                                                 className="w-full rounded-xl border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-400">
-                                                <option value="">— Select Room —</option>
+                                                <option value="">{t('cal.select_room')}</option>
                                                 {venues.map(v => (
                                                     <option key={v.id} value={v.name}>{v.name}{v.code ? ` (${v.code})` : ''}</option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">PDF File</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.pdf_file')}</label>
                                             {editingEvent?.file_url && (
                                                 <a href={editingEvent.file_url} target="_blank" rel="noopener noreferrer"
                                                     className="block text-xs text-brand-600 underline mb-1">{editingEvent.file_path?.split('/').pop()}</a>
@@ -715,23 +722,23 @@ export default function Index({ auth, venues = [] }) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-1.5">
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">Type of Meeting</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.meeting_type')}</label>
                                                 <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
                                                     className="w-full rounded-xl border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-400">
                                                     <option value="">—</option>
-                                                    <option value="half_day">Half Day</option>
-                                                    <option value="full_day">Full Day</option>
-                                                    <option value="full_board">Full Board</option>
+                                                    <option value="half_day">{t('cal.half_day')}</option>
+                                                    <option value="full_day">{t('cal.full_day')}</option>
+                                                    <option value="full_board">{t('cal.full_board')}</option>
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">Number of Pax</label>
+                                                <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.pax')}</label>
                                                 <input type="number" min="0" value={form.pax} onChange={e => setForm(f => ({ ...f, pax: e.target.value }))}
                                                     className="w-full rounded-xl border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-400" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">Color</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('cal.color')}</label>
                                             <div className="flex items-center gap-1.5">
                                                 {COLORS.map(c => (
                                                     <button key={c} type="button" onClick={() => setForm(f => ({ ...f, color: c }))}
@@ -746,12 +753,12 @@ export default function Index({ auth, venues = [] }) {
                                     {editingEvent && (editingEvent.user_id === auth.user.id || isAdmin) && (
                                         <button type="button" onClick={handleDelete} disabled={deleting}
                                             className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 disabled:opacity-50">
-                                            {deleting ? 'Deleting...' : 'Delete'}
+                                            {deleting ? t('cal.deleting') : t('cal.delete')}
                                         </button>
                                     )}
                                     <button type="submit"
                                         className="ml-auto px-3 py-1.5 text-xs font-medium text-white bg-brand-400 rounded-xl hover:bg-brand-600">
-                                        {editingEvent ? 'Update' : (inputType === 'statistic' ? 'Record' : 'Create')}
+                                        {editingEvent ? t('cal.update') : (inputType === 'statistic' ? t('cal.record') : t('cal.create'))}
                                     </button>
                                 </div>
                             </form>
