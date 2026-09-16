@@ -1,7 +1,9 @@
 import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
+import { useLang } from '../../../i18n';
 
 export default function Edit({ auth, item, categories }) {
+    const { t } = useLang();
     const { data, setData, put, processing, errors } = useForm({
         category_id: item.category_id ?? '',
         name: item.name,
@@ -16,17 +18,17 @@ export default function Edit({ auth, item, categories }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Edit Store Item" />
+            <Head title={t('store.form_edit_title')} />
             <div className="max-w-lg mx-auto">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Edit Item</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('store.form_edit_title')}</h2>
                 <form onSubmit={submit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
                     {errors.name && <div className="bg-red-50 text-red-600 text-sm rounded-xl p-3">{errors.name}</div>}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('store.category')}</label>
                         <select value={data.category_id} onChange={e => setData('category_id', e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
-                            <option value="">No category</option>
+                            <option value="">{t('store.no_category')}</option>
                             {categories.map(c => (
                                 <option key={c.id} value={c.id}>{c.name} ({c.type})</option>
                             ))}
@@ -34,29 +36,29 @@ export default function Edit({ auth, item, categories }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('store.name')}</label>
                         <input type="text" value={data.name} onChange={e => setData('name', e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('store.unit')}</label>
                         <input type="text" value={data.unit} onChange={e => setData('unit', e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400"
-                            placeholder="e.g. pcs, meter, liter, box, kg, roll" required />
+                            placeholder={t('store.unit_ph')} required />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Stock</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('store.min_stock')}</label>
                         <input type="number" min="0" value={data.minimum_stock} onChange={e => setData('minimum_stock', e.target.value)}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" />
                     </div>
 
-                    <div className="text-xs text-gray-400">Current stock: {item.stock} {item.unit}</div>
+                    <div className="text-xs text-gray-400">{t('store.current_stock')}: {item.stock} {item.unit}</div>
 
                     <button type="submit" disabled={processing}
                         className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                        {processing ? 'Saving...' : 'Update Item'}
+                        {processing ? t('store.saving') : t('store.update_item')}
                     </button>
                 </form>
             </div>

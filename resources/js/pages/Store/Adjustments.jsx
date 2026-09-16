@@ -1,27 +1,29 @@
 import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
-const statusColors = {
-    pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Pending' },
-    approved: { bg: 'bg-blue-50', text: 'text-brand-700', label: 'Approved' },
-    rejected: { bg: 'bg-red-50', text: 'text-red-700', label: 'Rejected' },
+const statusBg = {
+    pending: 'bg-yellow-50 text-yellow-700',
+    approved: 'bg-blue-50 text-brand-700',
+    rejected: 'bg-red-50 text-red-700',
 };
 
 export default function Adjustments({ auth, adjustments }) {
+    const { t } = useLang();
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Stock Adjustments" />
+            <Head title={t('store.adj_page_title')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Stock Adjustments</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Monitor adjustment approval progress</p>
+                        <h2 className="text-xl font-semibold text-gray-900">{t('store.adj_page_title')}</h2>
+                        <p className="text-sm text-gray-500 mt-0.5">{t('store.adj_subtitle')}</p>
                     </div>
-                    <Link href="/store" className="border border-gray-300 text-gray-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-50">Back to Store</Link>
+                    <Link href="/store" className="border border-gray-300 text-gray-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-50">{t('store.back_store')}</Link>
                 </div>
 
                 {adjustments.data.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No adjustments recorded.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('store.no_adjustments')}</div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
                         {adjustments.data.map(a => (
@@ -32,14 +34,14 @@ export default function Adjustments({ auth, adjustments }) {
                                         <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${a.qty > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                             {a.qty > 0 ? '+' : ''}{a.qty} {a.item?.unit}
                                         </span>
-                                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${statusColors[a.status]?.bg} ${statusColors[a.status]?.text}`}>
-                                            {statusColors[a.status]?.label ?? a.status}
+                                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${statusBg[a.status]}`}>
+                                            {t('store.st_' + a.status)}
                                         </span>
                                     </div>
                                     {a.reason && <p className="text-xs text-gray-500 mt-0.5">{a.reason}</p>}
                                     <p className="text-[11px] text-gray-400 mt-0.5">
-                                        {new Date(a.created_at).toLocaleDateString()} · by {a.requester?.name ?? 'Unknown'}
-                                        {a.approver && ` · ${a.status === 'approved' ? 'approved' : 'rejected'} by ${a.approver.name}`}
+                                        {new Date(a.created_at).toLocaleDateString()} · {t('store.by')} {a.requester?.name ?? t('store.unknown')}
+                                        {a.approver && ` · ${a.status === 'approved' ? t('store.approved_by') : t('store.st_rejected') + ' ' + t('store.by')} ${a.approver.name}`}
                                         {a.approved_at && ` · ${new Date(a.approved_at).toLocaleDateString()}`}
                                     </p>
                                 </div>

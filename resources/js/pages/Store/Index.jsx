@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 const statusColors = {
     pending: { bg: 'bg-yellow-50', text: 'text-yellow-700' },
@@ -12,6 +13,7 @@ const statusColors = {
 };
 
 function MutationModal({ item, mutations, beginningBalance, endingBalance, onClose, onFilter, dateFrom, dateTo }) {
+    const { t } = useLang();
     if (!item) return null;
     return (
         <AnimatePresence>
@@ -37,17 +39,17 @@ function MutationModal({ item, mutations, beginningBalance, endingBalance, onClo
                     </div>
                     <div className="flex items-center justify-around px-4 py-2 bg-gray-50 border-b border-gray-100 shrink-0">
                         <div className="text-center">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-wide">Beginning</p>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-wide">{t('store.beginning')}</p>
                             <p className="text-sm font-semibold text-gray-900">{beginningBalance} {item.unit}</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-wide">Ending</p>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-wide">{t('store.ending')}</p>
                             <p className="text-sm font-semibold text-gray-900">{endingBalance} {item.unit}</p>
                         </div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
                         {mutations.length === 0 ? (
-                            <p className="text-center text-gray-400 py-8">No mutation history.</p>
+                            <p className="text-center text-gray-400 py-8">{t('store.no_mutations')}</p>
                         ) : (
                             mutations.map((m, i) => (
                                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-gray-50">
@@ -61,7 +63,7 @@ function MutationModal({ item, mutations, beginningBalance, endingBalance, onClo
                                         </div>
                                         {m.reference && <p className="text-xs text-gray-500 mt-0.5">{m.reference}</p>}
                                         {m.notes && <p className="text-xs text-gray-400 mt-0.5 truncate">{m.notes}</p>}
-                                        <p className="text-[11px] text-gray-400 mt-0.5">by {m.by ?? 'Unknown'}</p>
+                                        <p className="text-[11px] text-gray-400 mt-0.5">{t('store.by')} {m.by ?? t('store.unknown')}</p>
                                     </div>
                                 </div>
                             ))
@@ -74,6 +76,7 @@ function MutationModal({ item, mutations, beginningBalance, endingBalance, onClo
 }
 
 export default function Index({ auth, tab: initialTab, categories, items, receivings, requests, adjustments, isChiefEngineer, pendingCount, lowStockCount, isTechnician }) {
+    const { t } = useLang();
     const [tab, setTab] = useState(initialTab ?? 'items');
     const [typeFilter, setTypeFilter] = useState('all');
     const [approveQty, setApproveQty] = useState({});
@@ -124,44 +127,44 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Store" />
+            <Head title={t('store.title')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-xl font-semibold text-gray-900">Store</h2>
+                        <h2 className="text-xl font-semibold text-gray-900">{t('store.title')}</h2>
                         {canManage && (pendingCount > 0 || lowStockCount > 0) && (
                             <div className="flex gap-1">
-                                {pendingCount > 0 && <span className="text-xs bg-yellow-100 text-yellow-700 rounded-full px-2 py-0.5 font-medium">{pendingCount} pending</span>}
-                                {lowStockCount > 0 && <span className="text-xs bg-red-100 text-red-700 rounded-full px-2 py-0.5 font-medium">{lowStockCount} low stock</span>}
+                                {pendingCount > 0 && <span className="text-xs bg-yellow-100 text-yellow-700 rounded-full px-2 py-0.5 font-medium">{pendingCount} {t('store.pending')}</span>}
+                                {lowStockCount > 0 && <span className="text-xs bg-red-100 text-red-700 rounded-full px-2 py-0.5 font-medium">{lowStockCount} {t('store.low_stock')}</span>}
                             </div>
                         )}
                     </div>
                     <div className="flex items-center gap-2">
                         {tab === 'items' && canManage && (
-                            <Link href="/store/items/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">Add Item</Link>
+                            <Link href="/store/items/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('store.add_item')}</Link>
                         )}
                         {tab === 'receivings' && canManage && (
-                            <Link href="/store/receivings/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">Record Receiving</Link>
+                            <Link href="/store/receivings/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('store.record_receiving')}</Link>
                         )}
                         {tab === 'requests' && (
-                            <Link href="/store/requests/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Request</Link>
+                            <Link href="/store/requests/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('store.new_request')}</Link>
                         )}
                         {canManage && (
-                            <Link href="/store/categories" className="border border-gray-300 text-gray-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-50">Manage Categories</Link>
+                            <Link href="/store/categories" className="border border-gray-300 text-gray-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-50">{t('store.manage_cats')}</Link>
                         )}
                     </div>
                 </div>
 
                 {!isTechnician && (
                     <div className="flex gap-1 border-b border-gray-200">
-                        {['items', 'receivings', 'requests', ...(canManage ? ['adjustments'] : [])].map(t => (
-                            <button key={t} onClick={() => setTab(t)}
-                                className={`px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors ${tab === t ? 'border-brand-400 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-                                {t}
-                                {t === 'requests' && pendingCount > 0 && (
+                        {['items', 'receivings', 'requests', ...(canManage ? ['adjustments'] : [])].map(tk => (
+                            <button key={tk} onClick={() => setTab(tk)}
+                                className={`px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors ${tab === tk ? 'border-brand-400 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                                {t('store.tab_' + tk)}
+                                {tk === 'requests' && pendingCount > 0 && (
                                     <span className="ml-1.5 text-xs bg-yellow-100 text-yellow-700 rounded-full px-1.5 py-0.5">{pendingCount}</span>
                                 )}
-                                {t === 'adjustments' && adjustments.filter(a => a.status === 'pending').length > 0 && (
+                                {tk === 'adjustments' && adjustments.filter(a => a.status === 'pending').length > 0 && (
                                     <span className="ml-1.5 text-xs bg-orange-100 text-orange-700 rounded-full px-1.5 py-0.5">{adjustments.filter(a => a.status === 'pending').length}</span>
                                 )}
                             </button>
@@ -172,20 +175,20 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                 {tab === 'items' && (
                     <div>
                         <div className="flex gap-2 mb-3 flex-wrap">
-                            {['all', 'supply', 'tool'].map(t => (
-                                <button key={t} onClick={() => setTypeFilter(t)}
-                                    className={`px-3 py-1 text-xs font-medium rounded-full ${typeFilter === t ? 'bg-brand-400 text-white' : 'bg-gray-100 text-gray-600 hover:bg-brand-50'}`}>
-                                    {t === 'all' ? 'All' : t === 'supply' ? 'Supplies' : 'Tools'}
+                            {['all', 'supply', 'tool'].map(tk => (
+                                <button key={tk} onClick={() => setTypeFilter(tk)}
+                                    className={`px-3 py-1 text-xs font-medium rounded-full ${typeFilter === tk ? 'bg-brand-400 text-white' : 'bg-gray-100 text-gray-600 hover:bg-brand-50'}`}>
+                                    {tk === 'all' ? t('store.all') : tk === 'supply' ? t('store.supplies') : t('store.tools')}
                                 </button>
                             ))}
                         </div>
                         {filteredItems.length === 0 ? (
                             <div className="bg-white rounded-2xl shadow-sm p-8">
-                                <div className="text-center text-gray-400 mb-4">No items found.</div>
+                                <div className="text-center text-gray-400 mb-4">{t('store.no_items')}</div>
                                 {canManage && (
                                     <div className="flex justify-center gap-3">
-                                        <Link href="/store/items/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">+ Add Item</Link>
-                                        <Link href="/store/categories" className="border border-gray-300 text-gray-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-50">Manage Categories</Link>
+                                        <Link href="/store/items/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('store.add_item_plus')}</Link>
+                                        <Link href="/store/categories" className="border border-gray-300 text-gray-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-50">{t('store.manage_cats')}</Link>
                                     </div>
                                 )}
                             </div>
@@ -194,11 +197,11 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50">
-                                            <th className="text-left px-4 py-2 font-medium text-gray-500">Name</th>
-                                            <th className="text-left px-4 py-2 font-medium text-gray-500">Category</th>
-                                            <th className="text-right px-4 py-2 font-medium text-gray-500">Stock</th>
-                                            <th className="text-left px-4 py-2 font-medium text-gray-500">Unit</th>
-                                            <th className="text-left px-4 py-2 font-medium text-gray-500">Status</th>
+                                            <th className="text-left px-4 py-2 font-medium text-gray-500">{t('store.name')}</th>
+                                            <th className="text-left px-4 py-2 font-medium text-gray-500">{t('store.category')}</th>
+                                            <th className="text-right px-4 py-2 font-medium text-gray-500">{t('store.stock')}</th>
+                                            <th className="text-left px-4 py-2 font-medium text-gray-500">{t('store.unit')}</th>
+                                            <th className="text-left px-4 py-2 font-medium text-gray-500">{t('store.status')}</th>
                                             {canManage && <th className="text-right px-4 py-2 font-medium text-gray-500"></th>}
                                         </tr>
                                     </thead>
@@ -213,15 +216,15 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                                     <td className="px-4 py-2 text-gray-500">{item.unit}</td>
                                                     <td className="px-4 py-2">
                                                         {isLow
-                                                            ? <span className="text-[10px] bg-red-100 text-red-700 rounded-full px-1.5 py-0.5 font-medium">Low Stock</span>
+                                                            ? <span className="text-[10px] bg-red-100 text-red-700 rounded-full px-1.5 py-0.5 font-medium">{t('store.low_stock_badge')}</span>
                                                             : <span className="text-[10px] text-gray-400">OK</span>
                                                         }
                                                     </td>
                                                     {canManage && (
                                                         <td className="px-4 py-2 text-right flex items-center justify-end gap-2">
-                                                            <button onClick={() => openMutations(item)} className="text-xs text-gray-500 hover:text-gray-700 border border-gray-300 rounded px-2 py-0.5">Mutation</button>
-                                                            <button onClick={() => { setAdjustItem(item); setAdjustQty(''); setAdjustReason(''); }} className="text-xs text-orange-600 hover:text-orange-800 border border-orange-300 rounded px-2 py-0.5">Adjust</button>
-                                                            <Link href={`/store/items/${item.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">Edit</Link>
+                                                            <button onClick={() => openMutations(item)} className="text-xs text-gray-500 hover:text-gray-700 border border-gray-300 rounded px-2 py-0.5">{t('store.mutation')}</button>
+                                                            <button onClick={() => { setAdjustItem(item); setAdjustQty(''); setAdjustReason(''); }} className="text-xs text-orange-600 hover:text-orange-800 border border-orange-300 rounded px-2 py-0.5">{t('store.adjust')}</button>
+                                                            <Link href={`/store/items/${item.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">{t('store.edit')}</Link>
                                                         </td>
                                                     )}
                                                 </tr>
@@ -238,10 +241,10 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                     <div>
                         {receivings.data.length === 0 ? (
                             <div className="bg-white rounded-2xl shadow-sm p-8">
-                                <div className="text-center text-gray-400 mb-4">No receivings recorded yet.</div>
+                                <div className="text-center text-gray-400 mb-4">{t('store.no_receivings')}</div>
                                 {canManage && (
                                     <div className="flex justify-center">
-                                        <Link href="/store/receivings/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">+ Record Receiving</Link>
+                                        <Link href="/store/receivings/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('store.record_receiving_plus')}</Link>
                                     </div>
                                 )}
                             </div>
@@ -255,9 +258,9 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                                 <span className="text-xs text-gray-500 bg-gray-100 rounded px-1.5 py-0.5">+{r.qty_received} {r.item?.unit}</span>
                                                 {r.unit_price && <span className="text-xs text-gray-500">@ {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(r.unit_price)}</span>}
                                             </div>
-                                            {r.reference && <p className="text-xs text-gray-500 mt-0.5">Ref: {r.reference}</p>}
+                                            {r.reference && <p className="text-xs text-gray-500 mt-0.5">{t('store.ref')}: {r.reference}</p>}
                                             {r.notes && <p className="text-xs text-gray-400 mt-0.5 truncate">{r.notes}</p>}
-                                            <p className="text-[11px] text-gray-400 mt-0.5">{new Date(r.receipt_date).toLocaleDateString()} · by {r.creator?.name}</p>
+                                            <p className="text-[11px] text-gray-400 mt-0.5">{new Date(r.receipt_date).toLocaleDateString()} · {t('store.by')} {r.creator?.name}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -280,9 +283,9 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                     <div>
                         {requests.data.length === 0 ? (
                             <div className="bg-white rounded-2xl shadow-sm p-8">
-                                <div className="text-center text-gray-400 mb-4">No requests yet.</div>
+                                <div className="text-center text-gray-400 mb-4">{t('store.no_requests')}</div>
                                 <div className="flex justify-center">
-                                    <Link href="/store/requests/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">+ New Request</Link>
+                                    <Link href="/store/requests/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('store.new_request_plus')}</Link>
                                 </div>
                             </div>
                         ) : (
@@ -294,14 +297,14 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                                 <p className="text-sm font-medium text-gray-900"><span className="text-xs text-gray-400 font-normal mr-1.5">ID: #{r.id}</span>{r.item?.name}</p>
                                                 <span className="text-xs text-gray-500">{r.qty_requested} × {r.item?.unit}</span>
                                                 <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${statusColors[r.status]?.bg ?? 'bg-gray-50'} ${statusColors[r.status]?.text ?? 'text-gray-600'}`}>
-                                                    {r.status}
+                                                    {t('store.st_' + r.status)}
                                                 </span>
                                             </div>
                                             {r.work_order && <p className="text-xs text-brand-600 mt-0.5">WO: {r.work_order.title}</p>}
                                             {r.notes && <p className="text-xs text-gray-500 mt-0.5 truncate">{r.notes}</p>}
                                             <p className="text-[11px] text-gray-400 mt-0.5">
-                                                {new Date(r.request_date).toLocaleDateString()} · by {r.requester?.name}
-                                                {r.approver && ` · approved by ${r.approver.name}`}
+                                                {new Date(r.request_date).toLocaleDateString()} · {t('store.by')} {r.requester?.name}
+                                                {r.approver && ` · ${t('store.approved_by')} ${r.approver.name}`}
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-2 ml-3 shrink-0">
@@ -312,15 +315,15 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                                             className="w-16 text-xs border border-gray-300 rounded px-1 py-0.5 text-center"
                                                             onChange={e => setApproveQty(prev => ({ ...prev, [r.id]: e.target.value }))} />
                                                         <button onClick={() => router.post(`/store/requests/${r.id}/approve`, { qty_approved: parseInt(approveQty[r.id]) || r.qty_requested })}
-                                                            className="text-xs text-green-600 font-medium hover:text-green-800">Approve</button>
+                                                            className="text-xs text-green-600 font-medium hover:text-green-800">{t('store.approve')}</button>
                                                         <button onClick={() => router.post(`/store/requests/${r.id}/reject`)}
-                                                            className="text-xs text-red-500 hover:text-red-700">Reject</button>
+                                                            className="text-xs text-red-500 hover:text-red-700">{t('store.reject')}</button>
                                                     </div>
                                                 </>
                                             )}
                                             {canManage && r.status === 'approved' && (
                                                 <button onClick={() => router.post(`/store/requests/${r.id}/fulfill`)}
-                                                    className="text-xs bg-brand-400 text-white rounded px-2 py-1 font-medium hover:bg-brand-600">Fulfill</button>
+                                                    className="text-xs bg-brand-400 text-white rounded px-2 py-1 font-medium hover:bg-brand-600">{t('store.fulfill')}</button>
                                             )}
                                         </div>
                                     </div>
@@ -343,7 +346,7 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                 {tab === 'adjustments' && (
                     <div>
                         {adjustments.length === 0 ? (
-                            <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No adjustments recorded.</div>
+                            <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('store.no_adjustments')}</div>
                         ) : (
                             <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
                                 {adjustments.map(a => (
@@ -358,20 +361,20 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                                     a.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                                                     a.status === 'approved' ? 'bg-brand-50 text-brand-700' :
                                                     'bg-red-100 text-red-700'
-                                                }`}>{a.status}</span>
+                                                }`}>{t('store.st_' + a.status)}</span>
                                             </div>
                                             {a.reason && <p className="text-xs text-gray-500 mt-0.5">{a.reason}</p>}
                                             <p className="text-[11px] text-gray-400 mt-0.5">
-                                                {new Date(a.created_at).toLocaleDateString()} · by {a.requester?.name}
-                                                {a.approver && ` · ${a.status === 'approved' ? 'approved' : 'rejected'} by ${a.approver.name}`}
+                                                {new Date(a.created_at).toLocaleDateString()} · {t('store.by')} {a.requester?.name}
+                                                {a.approver && ` · ${a.status === 'approved' ? t('store.approved_by') : t('store.st_rejected') + ' ' + t('store.by')} ${a.approver.name}`}
                                             </p>
                                         </div>
                                         {isChiefEngineer && a.status === 'pending' && (
                                             <div className="flex items-center gap-2 ml-3 shrink-0">
                                                 <button onClick={() => router.post(`/store/adjustments/${a.id}/approve`)}
-                                                    className="text-xs text-green-600 font-medium hover:text-green-800">Approve</button>
+                                                    className="text-xs text-green-600 font-medium hover:text-green-800">{t('store.approve')}</button>
                                                 <button onClick={() => router.post(`/store/adjustments/${a.id}/reject`)}
-                                                    className="text-xs text-red-500 hover:text-red-700">Reject</button>
+                                                    className="text-xs text-red-500 hover:text-red-700">{t('store.reject')}</button>
                                             </div>
                                         )}
                                     </div>
@@ -389,21 +392,21 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
                                 className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-4"
                                 onClick={e => e.stopPropagation()}>
-                                <h3 className="font-semibold text-gray-900 mb-1">Stock Adjustment</h3>
-                                <p className="text-sm text-gray-500 mb-4">{adjustItem.name} (Stock: {adjustItem.stock} {adjustItem.unit})</p>
+                                <h3 className="font-semibold text-gray-900 mb-1">{t('store.stock_adj')}</h3>
+                                <p className="text-sm text-gray-500 mb-4">{adjustItem.name} ({t('store.stock_label')}: {adjustItem.stock} {adjustItem.unit})</p>
                                 <div className="space-y-3">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Quantity (+ increase, — decrease)</label>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('store.qty_label')}</label>
                                         <input type="number" value={adjustQty} onChange={e => setAdjustQty(e.target.value)}
-                                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder="e.g. 50 or -20" />
+                                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder={t('store.qty_ph')} />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Reason</label>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('store.reason')}</label>
                                         <textarea value={adjustReason} onChange={e => setAdjustReason(e.target.value)} rows={2}
-                                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder="Why is this adjustment needed?" />
+                                            className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder={t('store.reason_ph')} />
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => setAdjustItem(null)} className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-2 text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                        <button onClick={() => setAdjustItem(null)} className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-2 text-sm font-medium hover:bg-gray-50">{t('store.cancel')}</button>
                                         <button onClick={() => {
                                             router.post('/store/adjustments', {
                                                 item_id: adjustItem.id,
@@ -412,7 +415,7 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                                             });
                                             setAdjustItem(null);
                                         }} disabled={!adjustQty || parseInt(adjustQty) === 0 || isNaN(parseInt(adjustQty))}
-                                            className="flex-1 bg-orange-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-orange-700 disabled:opacity-50">Submit</button>
+                                            className="flex-1 bg-orange-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-orange-700 disabled:opacity-50">{t('store.submit')}</button>
                                     </div>
                                 </div>
                             </motion.div>
@@ -437,7 +440,7 @@ export default function Index({ auth, tab: initialTab, categories, items, receiv
                     <div className="fixed bottom-20 right-4 z-40">
                         <button onClick={() => setTab('adjustments')}
                             className="bg-orange-500 text-white rounded-full px-4 py-2 text-sm font-medium shadow-lg hover:bg-orange-600 flex items-center gap-2">
-                            <span>Pending Adjustments</span>
+                            <span>{t('store.pending_adj')}</span>
                             <span className="bg-white text-orange-600 rounded-full px-1.5 py-0.5 text-xs font-bold">{adjustments.filter(a => a.status === 'pending').length}</span>
                         </button>
                     </div>
