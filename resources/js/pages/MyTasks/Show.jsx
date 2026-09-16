@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 export default function Show({ auth, workOrder, reviewerRole }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
     const wo = workOrder;
     const template = wo.checklist_template;
     const fields = template?.fields ?? [];
@@ -122,7 +125,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                 body: JSON.stringify({ status: 'pending_check', technician_notes: technicianNotes }),
             });
-            if (res.ok) { router.reload(); } else { const err = await res.json().catch(() => ({})); alert(err.message || 'Failed to mark complete'); }
+            if (res.ok) { router.reload(); } else { const err = await res.json().catch(() => ({})); alert(err.message || t('task.fail_complete')); }
         } finally {
             setSubmitting(false);
         }
@@ -144,7 +147,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                 router.reload();
             } else {
                 const err = await res.json().catch(() => ({}));
-                alert(err.message || 'Failed to save progress');
+                alert(err.message || t('task.fail_save'));
             }
         } finally {
             setSavingProgress(false);
@@ -217,7 +220,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                         onChange={e => setResponse(field.id, e.target.checked ? '1' : '0')}
                         className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-400"
                     />
-                    <span className="text-sm text-gray-600">{field.required ? '(required)' : '(optional)'}</span>
+                    <span className="text-sm text-gray-600">{field.required ? t('task.required') : t('task.optional')}</span>
                 </label>
             );
         }
@@ -233,13 +236,13 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                         onChange={e => handlePhotoUpload(field.id, e.target.files)}
                         className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-brand-700 hover:file:bg-brand-50"
                     />
-                    {uploading === field.id && <p className="text-xs text-gray-400 mt-1">Uploading...</p>}
+                    {uploading === field.id && <p className="text-xs text-gray-400 mt-1">{t('task.uploading')}</p>}
                     {photos.length > 0 && (
                         <ul className="mt-1 space-y-1">
                             {photos.map((photo, idx) => (
                                 <li key={`${photo.url}-${idx}`} className="flex items-center justify-between text-xs text-gray-600">
                                     <span className="truncate">{photo.name}</span>
-                                    <button type="button" onClick={() => removePhoto(field.id, idx)} className="text-red-600 ml-2 shrink-0">Remove</button>
+                                    <button type="button" onClick={() => removePhoto(field.id, idx)} className="text-red-600 ml-2 shrink-0">{t('task.remove')}</button>
                                 </li>
                             ))}
                         </ul>
@@ -276,7 +279,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                 value={value}
                 onChange={e => setResponse(field.id, e.target.value)}
                 className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400"
-                placeholder={`Enter ${field.label.toLowerCase()}...`}
+                placeholder={`${t('task.enter_ph')} ${field.label.toLowerCase()}...`}
             />
         );
     };
@@ -285,7 +288,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
         <AuthenticatedLayout auth={auth}>
             <Head title={wo.title} />
             <div className="max-w-2xl mx-auto space-y-4">
-                <Link href="/my-tasks" className="text-sm text-brand-600 hover:text-brand-700">&larr; Back to My Tasks</Link>
+                <Link href="/my-tasks" className="text-sm text-brand-600 hover:text-brand-700">&larr; {t('task.back')}</Link>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                     <div className="flex items-start justify-between mb-4">
@@ -295,68 +298,68 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                             wo.status === 'in_progress' ? 'bg-cyan-100 text-cyan-700' :
                             'bg-rose-100 text-rose-700'
                         }`}>
-                            {wo.status === 'in_progress' ? 'In Progress' : wo.status === 'pending_check' ? 'Pending Check' : 'Assigned'}
+                            {wo.status === 'in_progress' ? t('task.in_progress') : wo.status === 'pending_check' ? t('task.pending_check') : t('task.assigned')}
                         </span>
                     </div>
                     <div className="text-sm space-y-2">
                         <div>
-                            <span className="text-gray-500">Requester:</span>
+                            <span className="text-gray-500">{t('wo.requester')}:</span>
                             <span className="ml-2 text-gray-900">{wo.requester?.name}</span>
                         </div>
                         {wo.requester?.department && (
                             <div>
-                                <span className="text-gray-500">Department:</span>
+                                <span className="text-gray-500">{t('wo.department')}:</span>
                                 <span className="ml-2 text-gray-900">{wo.requester.department.name}</span>
                             </div>
                         )}
                         <div>
-                            <span className="text-gray-500">Priority:</span>
-                            <span className="ml-2 capitalize text-gray-900">{wo.priority}</span>
+                            <span className="text-gray-500">{t('wo.f_priority')}:</span>
+                            <span className="ml-2 capitalize text-gray-900">{t('pr.' + wo.priority)}</span>
                         </div>
                         {wo.asset && (
                             <div>
-                                <span className="text-gray-500">Asset:</span>
+                                <span className="text-gray-500">{t('wo.f_asset')}:</span>
                                 <span className="ml-2 text-gray-900">{wo.asset.name} ({wo.asset.code})</span>
                             </div>
                         )}
                         {wo.location && (
                             <div>
-                                <span className="text-gray-500">Location:</span>
+                                <span className="text-gray-500">{t('wo.f_location')}:</span>
                                 <span className="ml-2 text-gray-900">{wo.location.name}{wo.location.code ? ` (${wo.location.code})` : ''}</span>
                             </div>
                         )}
                         <div>
-                            <span className="text-gray-500">Created:</span>
-                            <span className="ml-2 text-gray-900">{new Date(wo.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-gray-500">{t('wo.created')}:</span>
+                            <span className="ml-2 text-gray-900">{new Date(wo.created_at).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                         {wo.completion_target_date && (
                             <div>
-                                <span className="text-gray-500">Target Completion:</span>
-                                <span className="ml-2 text-gray-900 font-medium">{new Date(wo.completion_target_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                                <span className="text-gray-500">{t('wo.target_completion')}:</span>
+                                <span className="ml-2 text-gray-900 font-medium">{new Date(wo.completion_target_date).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                             </div>
                         )}
                         {wo.description && (
                             <div>
-                                <span className="text-gray-500">Description:</span>
+                                <span className="text-gray-500">{t('wo.f_desc')}:</span>
                                 <p className="mt-1 text-gray-700 whitespace-pre-wrap">{wo.description}</p>
                             </div>
                         )}
                         {wo.photo && (
                             <div>
-                                <span className="text-gray-500">Photo:</span>
+                                <span className="text-gray-500">{t('wo.f_photo')}:</span>
                                 <img src={`/storage/${wo.photo}`} alt="Work order" className="mt-1 w-32 h-32 object-cover rounded-xl border" />
                             </div>
                         )}
                         {wo.technician_notes && (
                             <div>
-                                <span className="text-gray-500">Progress Note:</span>
-                                <p className="text-xs text-gray-400 mt-1">Last updated: {new Date(wo.updated_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')}</p>
+                                <span className="text-gray-500">{t('wo.progress_note')}:</span>
+                                <p className="text-xs text-gray-400 mt-1">{t('wo.last_updated')}: {new Date(wo.updated_at).toLocaleString(locale, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')}</p>
                                 <p className="mt-1 text-gray-700 whitespace-pre-wrap bg-gray-50 rounded-xl p-3 text-sm">{wo.technician_notes}</p>
                             </div>
                         )}
                         {existingPhotos.length > 0 && (
                             <div>
-                                <span className="text-gray-500">Completion Photos:</span>
+                                <span className="text-gray-500">{t('task.photos')}:</span>
                                 <div className="flex flex-wrap gap-2 mt-1">
                                     {existingPhotos.map(p => (
                                         <img key={p.id} src={`/storage/${p.photo_path}`} alt="Completion" className="w-20 h-20 object-cover rounded-xl border" />
@@ -368,7 +371,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
 
                     {canStart && (
                         <button onClick={handleStart} className="mt-6 w-full bg-cyan-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-cyan-700">
-                            Start Work
+                            {t('task.start_work')}
                         </button>
                     )}
                 </div>
@@ -376,20 +379,20 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                 {canComplete && fields.length > 0 && (
                     <div className="bg-white rounded-2xl shadow-sm p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-900">Checklist</h3>
+                            <h3 className="font-semibold text-gray-900">{t('task.checklist')}</h3>
                             <a
                                 href={`/work-orders/${wo.id}/checklist-pdf`}
                                 target="_blank"
                                 className="text-xs text-brand-600 hover:text-brand-700"
                             >
-                                Download PDF
+                                {t('task.download_pdf')}
                             </a>
                         </div>
 
                         <div ref={canvasWrapRef} className="w-full">
                             {groupedByPage.map(([page, pageFields]) => (
                                 <div key={page} className="mb-6 last:mb-0">
-                                    <p className="text-xs text-gray-400 mb-2">Page {page}</p>
+                                    <p className="text-xs text-gray-400 mb-2">{t('task.page')} {page}</p>
                                     <div className="relative" style={{ width: 500 * scale, height: pageHeight * scale }}>
                                         <div className="absolute top-0 left-0 origin-top-left" style={{ width: 500, height: pageHeight, transform: `scale(${scale})` }}>
                                             {pageFields.map((field) => (
@@ -420,16 +423,16 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                         </div>
 
                         {fields.some(f => f.required && !responses[f.id]) && (
-                            <p className="text-xs text-red-500 mt-3">Please fill all required fields.</p>
+                            <p className="text-xs text-red-500 mt-3">{t('task.fill_required')}</p>
                         )}
 
                         <div className="mt-6 space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Progress Note <span className="text-red-500">*</span></label>
-                                <textarea value={technicianNotes} onChange={e => setTechnicianNotes(e.target.value)} rows={3} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder="Describe the work done..." />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('wo.progress_note')} <span className="text-red-500">*</span></label>
+                                <textarea value={technicianNotes} onChange={e => setTechnicianNotes(e.target.value)} rows={3} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder={t('task.describe_ph')} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Completion Photos <span className="text-red-500">*</span></label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('task.photos')} <span className="text-red-500">*</span></label>
                                 <div className="flex flex-wrap gap-2 mb-2">
                                     {existingPhotos.map((p) => (
                                         <div key={p.id} className="relative">
@@ -440,11 +443,11 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                                 </div>
                                 <input type="file" ref={photoInputRef} accept="image/*" onChange={handleAddPhoto} className="hidden" />
                                 <button type="button" onClick={() => photoInputRef.current?.click()} disabled={uploadingPhoto} className="bg-gray-100 text-gray-700 rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-50 disabled:opacity-50">
-                                    {uploadingPhoto ? 'Uploading...' : '+ Add Photo'}
+                                    {uploadingPhoto ? t('task.uploading') : t('task.add_photo')}
                                 </button>
                             </div>
-                            {!technicianNotes.trim() && <p className="text-xs text-red-500">Please add a progress note.</p>}
-                            {existingPhotos.length === 0 && <p className="text-xs text-red-500">Please attach at least one completion photo.</p>}
+                            {!technicianNotes.trim() && <p className="text-xs text-red-500">{t('task.need_note')}</p>}
+                            {existingPhotos.length === 0 && <p className="text-xs text-red-500">{t('task.need_photo')}</p>}
                         </div>
 
                         <div className="flex gap-2 mt-4">
@@ -453,14 +456,14 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                                 disabled={savingProgress || !technicianNotes.trim()}
                                 className="flex-1 bg-gray-100 text-gray-700 rounded-xl py-2.5 text-sm font-medium hover:bg-brand-50 disabled:opacity-50"
                             >
-                                {savingProgress ? 'Saving...' : 'Save Progress'}
+                                {savingProgress ? t('task.saving') : t('task.save_progress')}
                             </button>
                             <button
                                 onClick={handleComplete}
                                 disabled={submitting || !technicianNotes.trim() || existingPhotos.length === 0 || fields.some(f => f.required && !responses[f.id])}
                                 className="flex-1 bg-green-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-green-700 disabled:opacity-50"
                             >
-                                {submitting ? 'Submitting...' : 'Mark Complete'}
+                                {submitting ? t('task.submitting') : t('task.mark_complete')}
                             </button>
                         </div>
                     </div>
@@ -468,7 +471,7 @@ export default function Show({ auth, workOrder, reviewerRole }) {
 
                 {wo.status === 'pending_check' && (
                     <div className="bg-white rounded-2xl shadow-sm p-6 text-center">
-                        <p className="text-sm text-gray-600">Work submitted for review. Waiting for your {reviewerRole === 'chief-engineer' ? 'chief engineer' : 'department head'} to approve completion.</p>
+                        <p className="text-sm text-gray-600">{t('task.review_wait')} {reviewerRole === 'chief-engineer' ? t('task.chief') : t('task.dept_head')} {t('task.approve_completion')}</p>
                     </div>
                 )}
 
@@ -476,11 +479,11 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                     <div className="bg-white rounded-2xl shadow-sm p-6">
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Progress Note <span className="text-red-500">*</span></label>
-                                <textarea value={technicianNotes} onChange={e => setTechnicianNotes(e.target.value)} rows={3} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder="Describe the work done..." />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('wo.progress_note')} <span className="text-red-500">*</span></label>
+                                <textarea value={technicianNotes} onChange={e => setTechnicianNotes(e.target.value)} rows={3} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder={t('task.describe_ph')} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Completion Photos <span className="text-red-500">*</span></label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('task.photos')} <span className="text-red-500">*</span></label>
                                 <div className="flex flex-wrap gap-2 mb-2">
                                     {existingPhotos.map((p) => (
                                         <div key={p.id} className="relative">
@@ -491,11 +494,11 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                                 </div>
                                 <input type="file" ref={photoInputRef} accept="image/*" onChange={handleAddPhoto} className="hidden" />
                                 <button type="button" onClick={() => photoInputRef.current?.click()} disabled={uploadingPhoto} className="bg-gray-100 text-gray-700 rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-50 disabled:opacity-50">
-                                    {uploadingPhoto ? 'Uploading...' : '+ Add Photo'}
+                                    {uploadingPhoto ? t('task.uploading') : t('task.add_photo')}
                                 </button>
                             </div>
-                            {!technicianNotes.trim() && <p className="text-xs text-red-500">Please add a progress note.</p>}
-                            {existingPhotos.length === 0 && <p className="text-xs text-red-500">Please attach at least one completion photo.</p>}
+                            {!technicianNotes.trim() && <p className="text-xs text-red-500">{t('task.need_note')}</p>}
+                            {existingPhotos.length === 0 && <p className="text-xs text-red-500">{t('task.need_photo')}</p>}
                         </div>
                         <div className="flex gap-2 mt-6">
                             <button
@@ -503,14 +506,14 @@ export default function Show({ auth, workOrder, reviewerRole }) {
                                 disabled={savingProgress || !technicianNotes.trim()}
                                 className="flex-1 bg-gray-100 text-gray-700 rounded-xl py-2.5 text-sm font-medium hover:bg-brand-50 disabled:opacity-50"
                             >
-                                {savingProgress ? 'Saving...' : 'Save Progress'}
+                                {savingProgress ? t('task.saving') : t('task.save_progress')}
                             </button>
                             <button
                                 onClick={handleComplete}
                                 disabled={submitting || !technicianNotes.trim() || existingPhotos.length === 0}
                                 className="flex-1 bg-green-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-green-700 disabled:opacity-50"
                             >
-                                {submitting ? 'Submitting...' : 'Mark Complete'}
+                                {submitting ? t('task.submitting') : t('task.mark_complete')}
                             </button>
                         </div>
                     </div>
