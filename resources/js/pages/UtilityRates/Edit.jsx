@@ -1,15 +1,16 @@
 import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
-
-const typeOptions = [
-    { value: 'electricity', label: 'Electricity', unit: 'kWh' },
-    { value: 'gas', label: 'Gas', unit: 'm³' },
-    { value: 'water', label: 'Water', unit: 'm³' },
-    { value: 'waste', label: 'Waste', unit: 'kg' },
-    { value: 'fuel', label: 'Fuel', unit: 'liter' },
-];
+import { useLang } from '../../i18n';
 
 export default function Edit({ auth, rate }) {
+    const { t } = useLang();
+    const typeOptions = [
+        { value: 'electricity', label: t('ut.electricity'), unit: 'kWh' },
+        { value: 'gas', label: t('ut.gas'), unit: 'm³' },
+        { value: 'water', label: t('ut.water'), unit: 'm³' },
+        { value: 'waste', label: t('ut.waste_t'), unit: 'kg' },
+        { value: 'fuel', label: t('ut.fuel'), unit: 'liter' },
+    ];
     const { data, setData, put, processing, errors } = useForm({
         type: rate.type,
         cost_per_unit: rate.cost_per_unit,
@@ -32,9 +33,9 @@ export default function Edit({ auth, rate }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Edit Utility Rate" />
+            <Head title={t('ur.form_edit')} />
             <div className="max-w-lg mx-auto">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Edit Utility Rate</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('ur.form_edit')}</h2>
                 <form onSubmit={submit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
                     {Object.keys(errors).length > 0 && (
                         <div className="bg-red-50 text-red-600 text-sm rounded-xl p-3">
@@ -43,42 +44,42 @@ export default function Edit({ auth, rate }) {
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('ur.type')}</label>
                         <select value={data.type} onChange={e => handleTypeChange(e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
                             {typeOptions.map(o => <option key={o.value} value={o.value}>{o.label} ({o.unit})</option>)}
                         </select>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Cost per Unit (IDR)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('ur.cost_unit')}</label>
                         <input type="number" step="1" min="0" value={data.cost_per_unit} onChange={e => setData('cost_per_unit', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required />
-                        <p className="text-xs text-gray-400 mt-1">Per {data.unit}</p>
+                        <p className="text-xs text-gray-400 mt-1">{t('ur.per')} {data.unit}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('ur.start')}</label>
                             <input type="date" value={data.start_date} onChange={e => setData('start_date', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('ur.end')}</label>
                             <input type="date" value={data.end_date} onChange={e => setData('end_date', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" />
                         </div>
                     </div>
-                    <p className="text-xs text-gray-400 -mt-2">Leave both empty for indefinite rate</p>
+                    <p className="text-xs text-gray-400 -mt-2">{t('ur.indefinite')}</p>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('ur.notes_opt')}</label>
                         <textarea value={data.notes} onChange={e => setData('notes', e.target.value)} rows={2} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" />
                     </div>
 
                     <div className="flex items-center gap-2">
                         <input type="checkbox" id="is_active" checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} className="rounded border-gray-300 text-brand-600 focus:ring-brand-400" />
-                        <label htmlFor="is_active" className="text-sm text-gray-700">Active</label>
+                        <label htmlFor="is_active" className="text-sm text-gray-700">{t('ur.active_cb')}</label>
                     </div>
 
                     <button type="submit" disabled={processing} className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                        {processing ? 'Saving...' : 'Update Rate'}
+                        {processing ? t('ur.saving') : t('ur.update')}
                     </button>
                 </form>
             </div>

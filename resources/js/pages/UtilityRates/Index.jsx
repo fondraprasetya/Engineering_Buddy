@@ -1,14 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
-
-const typeLabels = {
-    electricity: 'Electricity',
-    gas: 'Gas',
-    water: 'Water',
-    waste: 'Waste',
-    fuel: 'Fuel',
-};
+import { useLang } from '../../i18n';
 
 const typeIcons = {
     electricity: '⚡',
@@ -21,13 +14,22 @@ const typeIcons = {
 const typeOrder = ['electricity', 'gas', 'water', 'waste', 'fuel'];
 
 export default function Index({ auth, rates }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
+    const typeLabels = {
+        electricity: t('ut.electricity'),
+        gas: t('ut.gas'),
+        water: t('ut.water'),
+        waste: t('ut.waste_t'),
+        fuel: t('ut.fuel'),
+    };
     const formatCurrency = (val) => {
         if (val === null || val === undefined) return '—';
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(val);
     };
 
     const handleDelete = (rate) => {
-        if (!confirm(`Delete this rate?`)) return;
+        if (!confirm(t('ur.delete_confirm'))) return;
         router.delete(`/utility-rates/${rate.id}`);
     };
 
@@ -40,15 +42,15 @@ export default function Index({ auth, rates }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Utility Rates" />
+            <Head title={t('ur.title')} />
             <div className="max-w-3xl mx-auto space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-900">Utility Rates</h2>
-                    <Link href="/utility-rates/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Rate</Link>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('ur.title')}</h2>
+                    <Link href="/utility-rates/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('ur.new')}</Link>
                 </div>
 
                 {rates.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No utility rates configured. Add rates to auto-calculate cost when recording usage.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('ur.empty')}</div>
                 ) : (
                     <div className="space-y-6">
                         {grouped.map((group) => (
@@ -64,14 +66,14 @@ export default function Index({ auth, rates }) {
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-sm font-medium text-gray-900">{formatCurrency(rate.cost_per_unit)} / {rate.unit}</p>
-                                                        {!rate.is_active && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>}
+                                                        {!rate.is_active && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{t('ur.inactive')}</span>}
                                                     </div>
-                                                    {rate.start_date && <p className="text-xs text-gray-400 mt-0.5">{new Date(rate.start_date).toLocaleDateString()} – {rate.end_date ? new Date(rate.end_date).toLocaleDateString() : 'Forever'}</p>}
+                                                    {rate.start_date && <p className="text-xs text-gray-400 mt-0.5">{new Date(rate.start_date).toLocaleDateString(locale)} – {rate.end_date ? new Date(rate.end_date).toLocaleDateString(locale) : t('ur.forever')}</p>}
                                                     {rate.notes && <p className="text-xs text-gray-500 mt-0.5">{rate.notes}</p>}
                                                 </div>
                                                 <div className="flex items-center gap-2 shrink-0">
-                                                    <Link href={`/utility-rates/${rate.id}/edit`} className="text-xs text-brand-600 hover:text-brand-700">Edit</Link>
-                                                    <button onClick={() => handleDelete(rate)} className="text-xs text-red-600 hover:text-red-700">Delete</button>
+                                                    <Link href={`/utility-rates/${rate.id}/edit`} className="text-xs text-brand-600 hover:text-brand-700">{t('ur.edit')}</Link>
+                                                    <button onClick={() => handleDelete(rate)} className="text-xs text-red-600 hover:text-red-700">{t('ur.delete')}</button>
                                                 </div>
                                             </div>
                                         </motion.div>

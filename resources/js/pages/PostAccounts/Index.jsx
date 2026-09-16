@@ -1,18 +1,20 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 export default function Index({ auth, accounts }) {
+    const { t } = useLang();
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Post Accounts" />
+            <Head title={t('pa.title')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h2 className="text-xl font-semibold text-gray-900">Post Accounts</h2>
-                    <Link href="/post-accounts/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Account</Link>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('pa.title')}</h2>
+                    <Link href="/post-accounts/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('pa.new')}</Link>
                 </div>
 
                 {accounts.data.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No post accounts defined.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('pa.empty')}</div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
                         {accounts.data.map(a => (
@@ -21,9 +23,9 @@ export default function Index({ auth, accounts }) {
                                     <p className="text-sm font-semibold text-gray-900">{a.code}</p>
                                     <p className="text-sm text-gray-600">{a.name}</p>
                                     {a.description && <p className="text-xs text-gray-400 mt-0.5">{a.description}</p>}
-                                    <p className="text-xs text-gray-400 mt-0.5">by {a.creator?.name}</p>
+                                    <p className="text-xs text-gray-400 mt-0.5">{t('pa.by')} {a.creator?.name}</p>
                                 </div>
-                                <Link href={`/post-accounts/${a.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">Edit</Link>
+                                <Link href={`/post-accounts/${a.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">{t('pa.edit')}</Link>
                             </div>
                         ))}
                     </div>

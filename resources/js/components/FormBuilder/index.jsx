@@ -5,6 +5,7 @@ import FieldPalette from './FieldPalette';
 import A4Canvas from './A4Canvas';
 import FieldDrawer from './FieldDrawer';
 import PrintPreview from './PrintPreview';
+import { useLang } from '../../i18n';
 
 const fieldTypeIcons = { label: Tag, text: Type, number: Hash, date: Calendar, checkbox: CheckSquare, photo: Camera };
 
@@ -25,6 +26,7 @@ function createField(fieldType, x, y, page = 1) {
 }
 
 export default function FormBuilder({ initialFields, onSave, saving, name = '', category = '', onNameChange, onCategoryChange, errors = {} }) {
+    const { t } = useLang();
     const [fields, setFields] = useState(() => {
         if (initialFields && initialFields.length > 0) {
             return initialFields.map((f) => ({ ...f, id: f.id ?? `f-${nextId++}`, page: f.page ?? 1 }));
@@ -292,8 +294,8 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
                     {React.createElement(fieldTypeIcons[activeDrag.field.field_type] || Type, { size: 14, className: 'text-gray-500' })}
                     <span className="text-sm font-medium text-gray-800 truncate">
                         {activeDrag.groupCount > 1
-                            ? `${activeDrag.groupCount} fields`
-                            : activeDrag.field.label || 'Field'}
+                            ? `${activeDrag.groupCount} ${t('fb.fields_n')}`
+                            : activeDrag.field.label || t('fb.field_fb')}
                     </span>
                 </div>
             </div>
@@ -312,26 +314,26 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
             <div className="flex gap-4 h-full" onClick={handleCanvasClick}>
                 <div className="flex flex-col gap-3 w-52 shrink-0">
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Template Name</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('fb.template_name')}</label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => onNameChange?.(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400"
-                            placeholder="e.g. Guest Room PMM"
+                            placeholder={t('fb.name_ph')}
                         />
                         {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{t('fb.category')}</label>
                         <input
                             type="text"
                             value={category}
                             onChange={(e) => onCategoryChange?.(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
                             className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400"
-                            placeholder="e.g. Guest Room, Building"
+                            placeholder={t('fb.cat_ph')}
                         />
                     </div>
                     <FieldPalette />
@@ -341,14 +343,14 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
                         className="w-full inline-flex items-center justify-center gap-1.5 bg-white text-brand-700 rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-brand-50 disabled:opacity-50 border border-brand-200"
                     >
                         <Eye size={16} />
-                        Print Preview
+                        {t('fb.print_preview')}
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={saving || fields.length === 0}
                         className="w-full inline-flex items-center justify-center gap-1.5 bg-brand-400 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50"
                     >
-                        {saving ? 'Saving...' : 'Save Template'}
+                        {saving ? t('fb.saving') : t('fb.save_template')}
                     </button>
                 </div>
                 <div className="flex-1 flex flex-col min-w-0">
@@ -363,7 +365,7 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
                                         : 'bg-white text-gray-600 border-gray-200 hover:bg-brand-50'
                                 }`}
                             >
-                                Page {p}
+                                {t('fb.page')} {p}
                             </button>
                         ))}
                         <button
@@ -371,7 +373,7 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-medium bg-white text-brand-700 border border-dashed border-brand-300 hover:bg-brand-50"
                         >
                             <Plus size={14} />
-                            Add Page
+                            {t('fb.add_page')}
                         </button>
                     </div>
                     <A4Canvas
@@ -386,9 +388,9 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
                 {selectedIds.length > 1 ? (
                     <div className="w-64 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <div className="bg-white rounded-2xl border border-brand-200 p-4">
-                            <p className="text-sm font-semibold text-gray-900">{selectedIds.length} fields selected</p>
+                            <p className="text-sm font-semibold text-gray-900">{selectedIds.length} {t('fb.fields_selected')}</p>
                             <p className="text-xs text-gray-500 mt-1 mb-3">
-                                Ctrl/Shift-click to add. Drag any selected field to move the group. Arrows nudge.
+                                {t('fb.multi_hint')}
                             </p>
                             <div className="space-y-2">
                                 <button
@@ -396,14 +398,14 @@ export default function FormBuilder({ initialFields, onSave, saving, name = '', 
                                     className="w-full inline-flex items-center justify-center gap-1.5 bg-white text-brand-700 rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-50 border border-brand-200"
                                 >
                                     <Copy size={15} />
-                                    Duplicate Fields
+                                    {t('fb.dup_fields')}
                                 </button>
                                 <button
                                     onClick={handleDeleteSelected}
                                     className="w-full inline-flex items-center justify-center gap-1.5 bg-white text-red-600 rounded-xl px-4 py-2 text-sm font-medium hover:bg-red-50 border border-red-200"
                                 >
                                     <Trash2 size={15} />
-                                    Delete Fields
+                                    {t('fb.del_fields')}
                                 </button>
                             </div>
                         </div>

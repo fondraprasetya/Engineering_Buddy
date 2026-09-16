@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 const typeIcons = {
     work_order_created: '📋',
@@ -26,6 +27,8 @@ const typeColors = {
 };
 
 export default function Notifications({ auth, notifications }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
     const sorted = notifications.data ?? notifications ?? [];
 
     const handleMarkRead = (id) => {
@@ -40,13 +43,13 @@ export default function Notifications({ auth, notifications }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Notifications" />
+            <Head title={t('nt.title')} />
             <div className="max-w-lg mx-auto space-y-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-semibold text-gray-900">Notifications</h1>
+                    <h1 className="text-xl font-semibold text-gray-900">{t('nt.title')}</h1>
                     {unreadCount > 0 && (
                         <button onClick={handleMarkAllRead} className="text-sm text-brand-600 hover:text-brand-800 font-medium">
-                            Mark all as read
+                            {t('nt.mark_all')}
                         </button>
                     )}
                 </div>
@@ -54,7 +57,7 @@ export default function Notifications({ auth, notifications }) {
                 {sorted.length === 0 ? (
                     <div className="text-center py-16 text-gray-400">
                         <span className="text-5xl block mb-3">🔔</span>
-                        <p className="text-sm">No notifications yet</p>
+                        <p className="text-sm">{t('nt.empty')}</p>
                     </div>
                 ) : (
                     <div className="space-y-2">
@@ -74,7 +77,7 @@ export default function Notifications({ auth, notifications }) {
                                             {notification.data?.message ?? notification.type}
                                         </p>
                                         <p className="text-xs text-gray-400 mt-1">
-                                            {new Date(notification.created_at).toLocaleDateString('en-US', {
+                                            {new Date(notification.created_at).toLocaleDateString(locale, {
                                                 month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
                                             })}
                                         </p>
@@ -92,12 +95,12 @@ export default function Notifications({ auth, notifications }) {
                     <div className="flex justify-center gap-2 text-sm pt-2">
                         {notifications.prev_page_url && (
                             <Link href={notifications.prev_page_url} className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-gray-900">
-                                Previous
+                                {t('nt.prev')}
                             </Link>
                         )}
                         {notifications.next_page_url && (
                             <Link href={notifications.next_page_url} className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-gray-900">
-                                Next
+                                {t('nt.next')}
                             </Link>
                         )}
                     </div>

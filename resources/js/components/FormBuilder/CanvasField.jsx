@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { Type, Hash, Calendar, CheckSquare, Camera, Tag, GripHorizontal, X } from 'lucide-react';
+import { useLang } from '../../i18n';
 
 const typeIcons = { label: Tag, text: Type, number: Hash, date: Calendar, checkbox: CheckSquare, photo: Camera };
 const typeColors = {
@@ -40,6 +41,7 @@ function readAndResizePhoto(file) {
 }
 
 export default function CanvasField({ field, isSelected, suppressTransform, onSelect, onResizeStart, onPhotoChange }) {
+    const { t } = useLang();
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: `field-${field.id}`,
         data: { source: 'canvas', fieldId: field.id },
@@ -123,7 +125,7 @@ export default function CanvasField({ field, isSelected, suppressTransform, onSe
                             type="text"
                             readOnly
                             tabIndex={-1}
-                            placeholder="Type here..."
+                            placeholder={t('fb.type_here')}
                             style={{ fontSize: inputFontSize }}
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-gray-800"
                         />

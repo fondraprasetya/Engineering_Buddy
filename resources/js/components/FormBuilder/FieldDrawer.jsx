@@ -1,16 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Copy, Trash2, X } from 'lucide-react';
-
-const fieldTypeOptions = [
-    { value: 'label', label: 'Label' },
-    { value: 'text', label: 'Text' },
-    { value: 'number', label: 'Number' },
-    { value: 'date', label: 'Date' },
-    { value: 'checkbox', label: 'Checkbox' },
-    { value: 'photo', label: 'Photo' },
-];
+import { useLang } from '../../i18n';
 
 export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDuplicate, onMovePage, onClose }) {
+    const { t } = useLang();
+    const fieldTypeOptions = [
+        { value: 'label', label: t('fb.ft_label') },
+        { value: 'text', label: t('fb.ft_text') },
+        { value: 'number', label: t('fb.ft_number') },
+        { value: 'date', label: t('fb.ft_date') },
+        { value: 'checkbox', label: t('fb.ft_checkbox') },
+        { value: 'photo', label: t('fb.ft_photo') },
+    ];
     return (
         <AnimatePresence>
             {field && (
@@ -23,7 +24,7 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
                     className="w-60 shrink-0 bg-white rounded-2xl shadow-sm border border-gray-200 self-start"
                 >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                        <h3 className="font-semibold text-gray-900 text-sm">Field Properties</h3>
+                        <h3 className="font-semibold text-gray-900 text-sm">{t('fb.field_props')}</h3>
                         <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg">
                             <X size={16} className="text-gray-500" />
                         </button>
@@ -31,7 +32,7 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
 
                     <div className="p-4 space-y-4">
                         <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Label</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">{t('fb.label')}</label>
                             <input
                                 type="text"
                                 value={field.label}
@@ -41,7 +42,7 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
                         </div>
 
                         <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">{t('fb.type')}</label>
                             <select
                                 value={field.field_type}
                                 onChange={(e) => onUpdate(field.id, { field_type: e.target.value })}
@@ -54,14 +55,14 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
                         </div>
 
                         <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Page</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">{t('fb.page')}</label>
                             <select
                                 value={field.page ?? 1}
                                 onChange={(e) => onMovePage(field.id, parseInt(e.target.value))}
                                 className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400"
                             >
                                 {Array.from({ length: pageCount || 1 }, (_, i) => i + 1).map((p) => (
-                                    <option key={p} value={p}>Page {p}</option>
+                                    <option key={p} value={p}>{t('fb.page')} {p}</option>
                                 ))}
                             </select>
                         </div>
@@ -74,11 +75,11 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
                                 onChange={(e) => onUpdate(field.id, { required: e.target.checked })}
                                 className="rounded border-gray-300"
                             />
-                            <label htmlFor="field-required" className="text-sm text-gray-700">Required</label>
+                            <label htmlFor="field-required" className="text-sm text-gray-700">{t('fb.required_cb')}</label>
                         </div>
 
                         <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Width (px)</label>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">{t('fb.width')}</label>
                             <input
                                 type="number"
                                 value={field.width}
@@ -94,7 +95,7 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
                             className="w-full flex items-center justify-center gap-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl py-2.5 hover:bg-gray-200"
                         >
                             <Copy size={16} />
-                            Duplicate Field
+                            {t('fb.dup_field')}
                         </button>
 
                         <button
@@ -102,7 +103,7 @@ export default function FieldDrawer({ field, pageCount, onUpdate, onDelete, onDu
                             className="w-full flex items-center justify-center gap-2 text-sm font-medium text-red-600 bg-red-50 rounded-xl py-2.5 hover:bg-red-100"
                         >
                             <Trash2 size={16} />
-                            Delete Field
+                            {t('fb.del_field')}
                         </button>
                     </div>
                 </motion.div>

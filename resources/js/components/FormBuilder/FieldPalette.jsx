@@ -1,13 +1,14 @@
 import { useDraggable } from '@dnd-kit/core';
 import { Type, Hash, Calendar, CheckSquare, Camera, Tag } from 'lucide-react';
+import { useLang } from '../../i18n';
 
-const fieldTypes = [
-    { fieldType: 'label', label: 'Label', icon: Tag },
-    { fieldType: 'text', label: 'Text', icon: Type },
-    { fieldType: 'number', label: 'Number', icon: Hash },
-    { fieldType: 'date', label: 'Date', icon: Calendar },
-    { fieldType: 'checkbox', label: 'Checkbox', icon: CheckSquare },
-    { fieldType: 'photo', label: 'Photo', icon: Camera },
+const fieldTypeKeys = [
+    { fieldType: 'label', key: 'ft_label', icon: Tag },
+    { fieldType: 'text', key: 'ft_text', icon: Type },
+    { fieldType: 'number', key: 'ft_number', icon: Hash },
+    { fieldType: 'date', key: 'ft_date', icon: Calendar },
+    { fieldType: 'checkbox', key: 'ft_checkbox', icon: CheckSquare },
+    { fieldType: 'photo', key: 'ft_photo', icon: Camera },
 ];
 
 function PaletteItem({ fieldType, label, icon: Icon }) {
@@ -34,11 +35,12 @@ function PaletteItem({ fieldType, label, icon: Icon }) {
 }
 
 export default function FieldPalette() {
+    const { t } = useLang();
     return (
         <div className="w-44 shrink-0 space-y-2">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Field Types</h3>
-            {fieldTypes.map((ft) => (
-                <PaletteItem key={ft.type} {...ft} />
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t('fb.field_types')}</h3>
+            {fieldTypeKeys.map((ft) => (
+                <PaletteItem key={ft.fieldType} fieldType={ft.fieldType} label={t('fb.' + ft.key)} icon={ft.icon} />
             ))}
         </div>
     );

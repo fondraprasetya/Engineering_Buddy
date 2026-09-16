@@ -1,10 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Copy } from 'lucide-react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 export default function Show({ auth, template }) {
+    const { t } = useLang();
     const handleDuplicate = () => {
-        if (confirm(`Copy "${template.name}" to a new template?`)) {
+        if (confirm(t('cl.copy_confirm'))) {
             router.post(`/checklist-templates/${template.id}/duplicate`);
         }
     };
@@ -13,7 +15,7 @@ export default function Show({ auth, template }) {
         <AuthenticatedLayout auth={auth}>
             <Head title={template.name} />
             <div className="max-w-2xl mx-auto space-y-4">
-                <Link href="/checklist-templates" className="text-sm text-brand-600 hover:text-brand-700">&larr; Back to Templates</Link>
+                <Link href="/checklist-templates" className="text-sm text-brand-600 hover:text-brand-700">&larr; {t('cl.back_templates')}</Link>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6">
                     <div className="flex items-center justify-between mb-2">
@@ -21,14 +23,14 @@ export default function Show({ auth, template }) {
                         <div className="flex items-center gap-2">
                             <button onClick={handleDuplicate} className="inline-flex items-center gap-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl px-3 py-1.5 hover:bg-gray-200 hover:text-gray-800">
                                 <Copy size={14} />
-                                Copy
+                                {t('cl.copy')}
                             </button>
-                            <Link href={`/checklist-templates/${template.id}/edit`} className="text-sm bg-brand-400 text-white rounded-xl px-3 py-1.5 hover:bg-brand-600">Edit</Link>
+                            <Link href={`/checklist-templates/${template.id}/edit`} className="text-sm bg-brand-400 text-white rounded-xl px-3 py-1.5 hover:bg-brand-600">{t('cl.edit')}</Link>
                         </div>
                     </div>
-                    {template.asset_category && <p className="text-sm text-gray-500 mb-4">Category: {template.asset_category}</p>}
+                    {template.asset_category && <p className="text-sm text-gray-500 mb-4">{t('cl.category')}: {template.asset_category}</p>}
 
-                    <h3 className="font-semibold text-gray-900 mb-3">Fields ({template.fields?.length})</h3>
+                    <h3 className="font-semibold text-gray-900 mb-3">{t('cl.fields')} ({template.fields?.length})</h3>
                     {template.fields?.length > 0 ? (
                         <div className="space-y-2">
                             {template.fields.map((field) => (
@@ -43,7 +45,7 @@ export default function Show({ auth, template }) {
                                         )}
                                         <div>
                                             <p className="text-sm font-medium text-gray-900">{field.label}</p>
-                                            <p className="text-xs text-gray-500">{field.field_type}{field.required ? ' · Required' : ''}</p>
+                                            <p className="text-xs text-gray-500">{field.field_type}{field.required ? ` · ${t('cl.required')}` : ''}</p>
                                         </div>
                                     </div>
                                     <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded">{field.field_type}</span>
@@ -51,7 +53,7 @@ export default function Show({ auth, template }) {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-400">No fields defined.</p>
+                        <p className="text-sm text-gray-400">{t('cl.no_fields')}</p>
                     )}
                 </div>
             </div>
