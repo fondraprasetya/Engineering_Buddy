@@ -1,14 +1,17 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
-
-const months = [
-    { value: 1, label: 'January' }, { value: 2, label: 'February' }, { value: 3, label: 'March' },
-    { value: 4, label: 'April' }, { value: 5, label: 'May' }, { value: 6, label: 'June' },
-    { value: 7, label: 'July' }, { value: 8, label: 'August' }, { value: 9, label: 'September' },
-    { value: 10, label: 'October' }, { value: 11, label: 'November' }, { value: 12, label: 'December' },
-];
+import { useLang } from '../../i18n';
 
 export default function Create({ auth, years, postAccounts }) {
+    const { t } = useLang();
+    const months = [
+        { value: 1, label: t('bud.months_full_1') }, { value: 2, label: t('bud.months_full_2') },
+        { value: 3, label: t('bud.months_full_3') }, { value: 4, label: t('bud.months_full_4') },
+        { value: 5, label: t('bud.months_full_5') }, { value: 6, label: t('bud.months_full_6') },
+        { value: 7, label: t('bud.months_full_7') }, { value: 8, label: t('bud.months_full_8') },
+        { value: 9, label: t('bud.months_full_9') }, { value: 10, label: t('bud.months_full_10') },
+        { value: 11, label: t('bud.months_full_11') }, { value: 12, label: t('bud.months_full_12') },
+    ];
     const { data, setData, post, processing, errors } = useForm({
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1,
@@ -24,13 +27,13 @@ export default function Create({ auth, years, postAccounts }) {
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Set Monthly Budget" />
+            <Head title={t('bud.form_create')} />
             <div className="max-w-lg mx-auto">
                 <div className="flex items-center gap-3 mb-4">
                     <Link href="/budgets" className="text-gray-500 hover:text-gray-700">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </Link>
-                    <h2 className="text-xl font-semibold text-gray-900">Set Monthly Budget</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('bud.form_create')}</h2>
                 </div>
                 <form onSubmit={submit} className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
                     {Object.keys(errors).length > 0 && (
@@ -41,13 +44,13 @@ export default function Create({ auth, years, postAccounts }) {
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('bud.year')}</label>
                             <select value={data.year} onChange={e => setData('year', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
                                 {years.map(y => <option key={y} value={y}>{y}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('bud.month')}</label>
                             <select value={data.month} onChange={e => setData('month', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
                                 {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
                             </select>
@@ -55,25 +58,25 @@ export default function Create({ auth, years, postAccounts }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Post Account (optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('pk.post_account')} ({t('common.optional')})</label>
                         <select value={data.post_account} onChange={e => setData('post_account', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400">
-                            <option value="">— Select —</option>
+                            <option value="">{t('bud.select')}</option>
                             {postAccounts.map(a => <option key={a.code} value={a.code}>{a.code} — {a.name}</option>)}
                         </select>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Budget Amount (IDR)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('bud.amount')}</label>
                         <input type="number" step="1000" min="0" value={data.amount} onChange={e => setData('amount', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder="0" required />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
-                        <textarea value={data.notes} onChange={e => setData('notes', e.target.value)} rows={2} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder="Any notes about this budget" />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('bud.notes_opt')}</label>
+                        <textarea value={data.notes} onChange={e => setData('notes', e.target.value)} rows={2} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" placeholder={t('bud.notes_ph')} />
                     </div>
 
                     <button type="submit" disabled={processing} className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                        {processing ? 'Saving...' : 'Save Budget'}
+                        {processing ? t('bud.saving') : t('bud.save')}
                     </button>
                 </form>
             </div>

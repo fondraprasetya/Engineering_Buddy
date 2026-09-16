@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
+import { useLang } from '../../i18n';
 
 function fmt(v) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v ?? 0);
@@ -12,6 +13,8 @@ const statusColors = {
 };
 
 export default function Index({ auth, expenses, totalAmount, months, filterMonth }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
     const [showDelete, setShowDelete] = useState(null);
 
     const handleDelete = (id) => {
@@ -22,33 +25,33 @@ export default function Index({ auth, expenses, totalAmount, months, filterMonth
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Actual Expenses" />
+            <Head title={t('exp.title')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Actual Expenses</h2>
-                        <p className="text-sm text-gray-500">Total: {fmt(totalAmount)}</p>
+                        <h2 className="text-xl font-semibold text-gray-900">{t('exp.title')}</h2>
+                        <p className="text-sm text-gray-500">{t('exp.total')}: {fmt(totalAmount)}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         <select value={filterMonth ?? ''} onChange={e => { router.get('/expenses', { month: e.target.value }, { preserveState: true }); }} className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm">
-                            <option value="">All Months</option>
+                            <option value="">{t('exp.all_months')}</option>
                             {months.map(m => <option key={m} value={m}>{m}</option>)}
                         </select>
-                        <Link href="/expenses/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">Record Expense</Link>
+                        <Link href="/expenses/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('exp.record')}</Link>
                     </div>
                 </div>
 
                 {expenses.data.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No expenses recorded yet.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('exp.empty')}</div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">
                         {expenses.data.map(e => {
                             const link = e.work_order
                                 ? { label: `WO: ${e.work_order.title}`, href: `/work-orders/${e.work_order.id}` }
                                 : e.project
-                                    ? { label: `Project: ${e.project.name}`, href: `/projects/${e.project.id}` }
+                                    ? { label: `${t('exp.project_prefix')}: ${e.project.name}`, href: `/projects/${e.project.id}` }
                                     : e.maintenance_schedule
-                                        ? { label: 'Schedule', href: null }
+                                        ? { label: t('exp.schedule_label'), href: null }
                                         : null;
                             return (
                                 <div key={e.id} className="p-4 flex items-center justify-between">
@@ -57,10 +60,10 @@ export default function Index({ auth, expenses, totalAmount, months, filterMonth
                                             <p className="text-sm font-medium text-gray-900">{fmt(e.amount)}</p>
                                             {e.post_account && <span className="text-xs text-gray-500 bg-gray-100 rounded px-1.5 py-0.5">{e.post_account}</span>}
                                             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${statusColors[e.status]?.bg ?? 'bg-gray-50'} ${statusColors[e.status]?.text ?? 'text-gray-600'}`}>
-                                                {e.status}
+                                                {t('exp.st_' + e.status)}
                                             </span>
                                         </div>
-                                        {e.document_ref && <p className="text-xs text-gray-500 mt-0.5">Ref: {e.document_ref}</p>}
+                                        {e.document_ref && <p className="text-xs text-gray-500 mt-0.5">{t('exp.ref')}: {e.document_ref}</p>}
                                         {e.description && <p className="text-xs text-gray-500 mt-0.5 truncate">{e.description}</p>}
                                         {link && (
                                             <p className="text-xs mt-0.5">
@@ -71,18 +74,18 @@ export default function Index({ auth, expenses, totalAmount, months, filterMonth
                                             </p>
                                         )}
                                         <p className="text-[11px] text-gray-400 mt-0.5">
-                                            {new Date(e.expense_date).toLocaleDateString()} · by {e.creator?.name}
+                                            {new Date(e.expense_date).toLocaleDateString(locale)} · {t('exp.by')} {e.creator?.name}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 ml-3 shrink-0">
-                                        <Link href={`/expenses/${e.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">Edit</Link>
+                                        <Link href={`/expenses/${e.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">{t('exp.edit')}</Link>
                                         {showDelete === e.id ? (
                                             <div className="flex items-center gap-1">
-                                                <button onClick={() => handleDelete(e.id)} className="text-xs text-red-600 font-medium hover:text-red-800">Confirm</button>
-                                                <button onClick={() => setShowDelete(null)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+                                                <button onClick={() => handleDelete(e.id)} className="text-xs text-red-600 font-medium hover:text-red-800">{t('exp.confirm')}</button>
+                                                <button onClick={() => setShowDelete(null)} className="text-xs text-gray-400 hover:text-gray-600">{t('exp.cancel')}</button>
                                             </div>
                                         ) : (
-                                            <button onClick={() => setShowDelete(e.id)} className="text-xs text-red-500 hover:text-red-700">Delete</button>
+                                            <button onClick={() => setShowDelete(e.id)} className="text-xs text-red-500 hover:text-red-700">{t('exp.delete')}</button>
                                         )}
                                     </div>
                                 </div>

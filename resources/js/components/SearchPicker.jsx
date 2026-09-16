@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-
-const labels = {
-    work_order: { label: 'Work Order', placeholder: 'Search work orders...', format: (item) => `WO: ${item.title}` },
-    project: { label: 'Project', placeholder: 'Search projects...', format: (item) => `Project: ${item.name}` },
-    schedule: { label: 'Schedule', placeholder: 'Search schedules...', format: (item) => `Schedule: ${item.asset?.name ?? '—'} (${item.next_due_date})` },
-};
+import { useLang } from '../i18n';
 
 export default function SearchPicker({ type, items, value, onChange }) {
+    const { t } = useLang();
+    const labels = {
+        work_order: { label: t('pk.wo'), placeholder: t('pk.search_wo'), none: t('pk.no_wo'), noMatch: t('pk.no_match_wo'), format: (item) => `WO: ${item.title}` },
+        project: { label: t('pk.project'), placeholder: t('pk.search_project'), none: t('pk.no_project'), noMatch: t('pk.no_match_project'), format: (item) => `${t('pk.project')}: ${item.name}` },
+        schedule: { label: t('pk.schedule'), placeholder: t('pk.search_schedule'), none: t('pk.no_schedule'), noMatch: t('pk.no_match_schedule'), format: (item) => `${t('pk.schedule')}: ${item.asset?.name ?? '—'} (${item.next_due_date})` },
+    };
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState('');
     const inputRef = useRef(null);
@@ -38,7 +39,7 @@ export default function SearchPicker({ type, items, value, onChange }) {
                 {selected ? (
                     <span className="text-gray-900 truncate">{cfg.format(selected)}</span>
                 ) : (
-                    <span className="text-gray-400">No {cfg.label.toLowerCase()}</span>
+                    <span className="text-gray-400">{cfg.none}</span>
                 )}
                 <svg className="w-4 h-4 text-gray-400 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -65,7 +66,7 @@ export default function SearchPicker({ type, items, value, onChange }) {
                                 onClick={() => { onChange(''); setOpen(false); setSearch(''); }}
                                 className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${!value ? 'bg-blue-50 text-brand-700 font-medium' : 'text-gray-500'}`}
                             >
-                                No {cfg.label.toLowerCase()}
+                                {cfg.none}
                             </button>
                             {filtered.map(item => (
                                 <button
@@ -78,7 +79,7 @@ export default function SearchPicker({ type, items, value, onChange }) {
                                 </button>
                             ))}
                             {filtered.length === 0 && (
-                                <p className="px-3 py-4 text-sm text-gray-400 text-center">No matching {cfg.label.toLowerCase()}s.</p>
+                                <p className="px-3 py-4 text-sm text-gray-400 text-center">{cfg.noMatch}</p>
                             )}
                         </div>
                     </div>

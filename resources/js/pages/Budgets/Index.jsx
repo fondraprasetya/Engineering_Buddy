@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
-
-const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { useLang } from '../../i18n';
 
 const ImportActivityIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -13,6 +12,9 @@ const ImportActivityIcon = () => (
 );
 
 export default function Index({ auth, rows, noAccountMonths, noAccountTotal, totals, grandTotal, year, years, importLogs }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
+    const monthLabels = [t('bud.m1'), t('bud.m2'), t('bud.m3'), t('bud.m4'), t('bud.m5'), t('bud.m6'), t('bud.m7'), t('bud.m8'), t('bud.m9'), t('bud.m10'), t('bud.m11'), t('bud.m12')];
     const [filterYear, setFilterYear] = useState(year?.toString() ?? new Date().getFullYear().toString());
     const [importing, setImporting] = useState(false);
     const [showLogs, setShowLogs] = useState(false);
@@ -38,20 +40,20 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Monthly Budgets" />
+            <Head title={t('bud.title')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h2 className="text-xl font-semibold text-gray-900">Monthly Budgets</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('bud.title')}</h2>
                     <div className="flex items-center gap-2">
-                        <button onClick={handleExport} className="bg-white border border-gray-300 text-gray-700 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-50">Export</button>
+                        <button onClick={handleExport} className="bg-white border border-gray-300 text-gray-700 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-50">{t('ut.export')}</button>
                         <label className="bg-white border border-gray-300 text-gray-700 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-50 cursor-pointer">
-                            {importing ? 'Importing...' : 'Import'}
+                            {importing ? t('ut.importing') : t('ut.import')}
                             <input type="file" ref={fileInputRef} accept=".csv" onChange={handleImport} className="hidden" />
                         </label>
                         <select value={filterYear} onChange={e => { setFilterYear(e.target.value); router.get('/budgets', { year: e.target.value }, { preserveState: true }); }} className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm">
                             {years.map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
-                        <Link href="/budgets/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Budget</Link>
+                        <Link href="/budgets/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('bud.new')}</Link>
                     </div>
                 </div>
 
@@ -59,9 +61,9 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                     <table className="w-full text-xs">
                         <thead>
                             <tr className="border-b border-gray-200 bg-gray-50">
-                                <th className="text-left px-3 py-2 font-semibold text-gray-700">Post Account</th>
+                                <th className="text-left px-3 py-2 font-semibold text-gray-700">{t('bud.post_account')}</th>
                                 {monthLabels.map(m => <th key={m} className="text-right px-2 py-2 font-semibold text-gray-700">{m}</th>)}
-                                <th className="text-right px-3 py-2 font-semibold text-gray-700">Total</th>
+                                <th className="text-right px-3 py-2 font-semibold text-gray-700">{t('bud.total')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -72,7 +74,7 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                                         {r.name ? (
                                             <span className="text-gray-500 font-normal ml-1">{r.name}</span>
                                         ) : (
-                                            <span className="text-gray-400 font-normal ml-1 text-[10px]">(unknown)</span>
+                                            <span className="text-gray-400 font-normal ml-1 text-[10px]">{t('bud.unknown')}</span>
                                         )}
                                     </td>
                                     {r.months.map((amt, i) => (
@@ -83,7 +85,7 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                             ))}
                             {noAccountTotal > 0 && (
                                 <tr className="hover:bg-gray-50 text-gray-500">
-                                    <td className="px-3 py-2 italic">(no account)</td>
+                                    <td className="px-3 py-2 italic">{t('bud.no_account')}</td>
                                     {noAccountMonths.map((amt, i) => (
                                         <td key={i} className="text-right px-2 py-2 tabular-nums">{amt > 0 ? fmt(amt) : ''}</td>
                                     ))}
@@ -93,9 +95,9 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                         </tbody>
                         <tfoot>
                             <tr className="border-t-2 border-gray-300 bg-gray-50 font-semibold text-gray-900">
-                                <td className="px-3 py-2 text-sm">Total</td>
-                                {totals.map((t, i) => (
-                                    <td key={i} className="text-right px-2 py-2 text-sm tabular-nums">{fmt(t)}</td>
+                                <td className="px-3 py-2 text-sm">{t('bud.total')}</td>
+                                {totals.map((tv, i) => (
+                                    <td key={i} className="text-right px-2 py-2 text-sm tabular-nums">{fmt(tv)}</td>
                                 ))}
                                 <td className="text-right px-3 py-2 text-sm tabular-nums">{fmt(grandTotal)}</td>
                             </tr>
@@ -104,7 +106,7 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                 </div>
 
                 <div className="flex justify-end">
-                    <Link href="/budgets/create" className="text-brand-600 text-sm hover:text-brand-800 font-medium">+ Add Budget</Link>
+                    <Link href="/budgets/create" className="text-brand-600 text-sm hover:text-brand-800 font-medium">{t('bud.add')}</Link>
                 </div>
 
                 {importLogs?.length > 0 && (
@@ -115,7 +117,7 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                         >
                             <span className="flex items-center gap-2">
                                 <ImportActivityIcon />
-                                Import History
+                                {t('ut.import_history')}
                             </span>
                             <svg className={`w-4 h-4 transition-transform ${showLogs ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -128,17 +130,17 @@ export default function Index({ auth, rows, noAccountMonths, noAccountTotal, tot
                                         <div className="min-w-0">
                                             <p className="text-gray-700 truncate">{log.file_name}</p>
                                             <p className="text-xs text-gray-400 mt-0.5">
-                                                {log.user?.name} · {new Date(log.created_at).toLocaleString()}
+                                                {log.user?.name} · {new Date(log.created_at).toLocaleString(locale)}
                                             </p>
                                             {log.status === 'success' && (
-                                                <p className="text-xs text-gray-500 mt-0.5">{log.imported} imported, {log.skipped} skipped</p>
+                                                <p className="text-xs text-gray-500 mt-0.5">{log.imported} {t('ut.imported')}, {log.skipped} {t('ut.skipped')}</p>
                                             )}
                                             {log.status === 'failed' && log.error_message && (
                                                 <p className="text-xs text-red-500 mt-0.5 truncate">{log.error_message}</p>
                                             )}
                                         </div>
                                         <span className={`shrink-0 ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${log.status === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                                            {log.status}
+                                            {t('ut.st_' + log.status)}
                                         </span>
                                     </div>
                                 ))}

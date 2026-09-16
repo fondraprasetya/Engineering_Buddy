@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { useLang } from '../i18n';
 
 export default function PostAccountPicker({ accounts, value, onChange }) {
+    const { t } = useLang();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState('');
     const inputRef = useRef(null);
@@ -24,7 +26,7 @@ export default function PostAccountPicker({ accounts, value, onChange }) {
 
     return (
         <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Post Account</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('pk.post_account')}</label>
             <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -37,7 +39,7 @@ export default function PostAccountPicker({ accounts, value, onChange }) {
                         <span className="text-gray-600">{selected.name}</span>
                     </span>
                 ) : (
-                    <span className="text-gray-400">No account</span>
+                    <span className="text-gray-400">{t('pk.no_account')}</span>
                 )}
                 <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -54,7 +56,7 @@ export default function PostAccountPicker({ accounts, value, onChange }) {
                                 type="text"
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
-                                placeholder="Search account..."
+                                placeholder={t('pk.search_account')}
                                 className="w-full rounded-xl border border-gray-200 px-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none"
                             />
                         </div>
@@ -64,7 +66,7 @@ export default function PostAccountPicker({ accounts, value, onChange }) {
                                 onClick={() => { onChange(''); setOpen(false); setSearch(''); }}
                                 className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${value === '' || value === null ? 'bg-blue-50 text-brand-700 font-medium' : 'text-gray-500'}`}
                             >
-                                No account
+                                {t('pk.no_account')}
                             </button>
                             {filtered.map(a => (
                                 <button
@@ -79,7 +81,7 @@ export default function PostAccountPicker({ accounts, value, onChange }) {
                                 </button>
                             ))}
                             {filtered.length === 0 && (
-                                <p className="px-3 py-4 text-sm text-gray-400 text-center">No matching accounts.</p>
+                                <p className="px-3 py-4 text-sm text-gray-400 text-center">{t('pk.no_match_acc')}</p>
                             )}
                         </div>
                     </div>
