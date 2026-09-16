@@ -961,6 +961,9 @@ const STRINGS = {
         logout: ['Logout', 'Keluar'],
         help: ['Help & User Manual', 'Bantuan & Panduan'],
         notifications: ['Notifications', 'Notifikasi'],
+        profile: ['Profile', 'Profil'],
+        language: ['Language', 'Bahasa'],
+        help_short: ['Help', 'Bantuan'],
     },
     tools: {
         title: ['Engineering Tools', 'Peralatan Engineering'],

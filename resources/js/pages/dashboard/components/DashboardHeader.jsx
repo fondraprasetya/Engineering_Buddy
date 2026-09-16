@@ -1,4 +1,5 @@
-import { Bell, CloudSun, Clock, LogOut, User, CircleHelp } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Bell, CloudSun, Clock, LogOut, User, CircleHelp, Globe } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { useLang } from '../../../i18n';
 
@@ -28,6 +29,15 @@ export default function DashboardHeader({ auth, notification_count, weather }) {
     const temp = weather?.temp ?? '--';
     const condition = weather?.condition ?? '';
     const locale = lang === 'id' ? 'id-ID' : 'en-US';
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        if (!menuOpen) return;
+        const close = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+        document.addEventListener('click', close);
+        return () => document.removeEventListener('click', close);
+    }, [menuOpen]);
 
     const greeting = () => {
         const h = new Date().getHours();
@@ -63,25 +73,8 @@ export default function DashboardHeader({ auth, notification_count, weather }) {
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                    <div className="flex rounded-full border border-gray-200 overflow-hidden text-[10px] font-bold" title="Language / Bahasa">
-                        {['en', 'id'].map(l => (
-                            <button
-                                key={l}
-                                onClick={() => setLang(l)}
-                                className={`px-2 py-1 uppercase ${lang === l ? 'bg-brand-600 text-white' : 'text-gray-400 hover:bg-gray-50'}`}
-                            >
-                                {l}
-                            </button>
-                        ))}
-                    </div>
-                    <Link href="/help" className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title={t('header.help')}>
-                        <CircleHelp size={18} className="text-gray-400" />
-                    </Link>
-                    <button onClick={handleLogout} className="p-2 rounded-2xl hover:bg-brand-50 transition-colors" title={t('header.logout')}>
-                        <LogOut size={18} className="text-gray-400" />
-                    </button>
-                    <Link href="/notifications" className="relative p-2 rounded-2xl hover:bg-brand-50 transition-colors">
+                <div className="flex items-center gap-1 shrink-0">
+                    <Link href="/notifications" className="relative p-2 rounded-2xl hover:bg-brand-50 transition-colors" title={t('header.notifications')}>
                         <Bell size={18} className="text-gray-400" />
                         {notification_count > 0 && (
                             <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-accent-400 rounded-full text-[9px] text-white font-bold">
@@ -89,15 +82,51 @@ export default function DashboardHeader({ auth, notification_count, weather }) {
                             </span>
                         )}
                     </Link>
-                    <Link href="/profile" className="shrink-0">
-                        {user?.photo ? (
-                            <img src={`/storage/${user.photo}`} alt={name} className="w-9 h-9 rounded-full object-cover border-2 border-brand-100" />
-                        ) : (
-                            <div className="w-9 h-9 rounded-full bg-brand-400 flex items-center justify-center text-white text-xs font-bold">
-                                {name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()}
+                    <div className="relative" ref={menuRef}>
+                        <button onClick={() => setMenuOpen(o => !o)} className="shrink-0 rounded-full hover:ring-2 hover:ring-brand-200 transition-shadow" title={name}>
+                            {user?.photo ? (
+                                <img src={`/storage/${user.photo}`} alt={name} className="w-9 h-9 rounded-full object-cover border-2 border-brand-100" />
+                            ) : (
+                                <div className="w-9 h-9 rounded-full bg-brand-400 flex items-center justify-center text-white text-xs font-bold">
+                                    {name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()}
+                                </div>
+                            )}
+                        </button>
+                        {menuOpen && (
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-lg border border-gray-100 py-1.5 z-30">
+                                <div className="px-4 py-2 border-b border-gray-100 mb-1">
+                                    <p className="text-sm font-semibold text-gray-900 truncate">{name}</p>
+                                    <p className="text-[11px] text-gray-400 truncate">{user?.email}</p>
+                                </div>
+                                <Link href="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <User size={15} className="text-gray-400" />{t('header.profile')}
+                                </Link>
+                                <Link href="/help" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <CircleHelp size={15} className="text-gray-400" />{t('header.help_short')}
+                                </Link>
+                                <div className="px-4 py-2 flex items-center gap-2.5 text-sm text-gray-700">
+                                    <Globe size={15} className="text-gray-400" />
+                                    <span className="flex-1">{t('header.language')}</span>
+                                    <div className="flex rounded-full border border-gray-200 overflow-hidden text-[10px] font-bold">
+                                        {['en', 'id'].map(l => (
+                                            <button
+                                                key={l}
+                                                onClick={() => setLang(l)}
+                                                className={`px-2 py-0.5 uppercase ${lang === l ? 'bg-brand-600 text-white' : 'text-gray-400'}`}
+                                            >
+                                                {l}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="border-t border-gray-100 mt-1 pt-1">
+                                    <button onClick={handleLogout} className="flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+                                        <LogOut size={15} />{t('header.logout')}
+                                    </button>
+                                </div>
                             </div>
                         )}
-                    </Link>
+                    </div>
                 </div>
             </div>
         </div>
