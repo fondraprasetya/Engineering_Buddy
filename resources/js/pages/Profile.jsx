@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout';
+import { useLang } from '../i18n';
 
 export default function Profile({ auth, telegramStatus: initialTelegramStatus }) {
+    const { t } = useLang();
     const [telegramStatus, setTelegramStatus] = useState(initialTelegramStatus);
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
@@ -132,10 +134,10 @@ export default function Profile({ auth, telegramStatus: initialTelegramStatus })
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Profile" />
+            <Head title={t('prof.title')} />
             <div className="max-w-lg mx-auto space-y-4">
                 <div className="bg-white rounded-2xl shadow-sm p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('prof.title')}</h2>
                     <div className="flex items-center gap-4 mb-4">
                         <div className="relative">
                             {photoPreview ? (
@@ -158,72 +160,72 @@ export default function Profile({ auth, telegramStatus: initialTelegramStatus })
                         </div>
                     </div>
                     <div className="text-sm space-y-2">
-                        <p><span className="text-gray-500">Department:</span> {auth.user.department?.name ?? 'N/A'}</p>
-                        <p><span className="text-gray-500">Roles:</span> {(auth.user.roles ?? []).join(', ')}</p>
+                        <p><span className="text-gray-500">{t('prof.department')}:</span> {auth.user.department?.name ?? 'N/A'}</p>
+                        <p><span className="text-gray-500">{t('prof.roles')}:</span> {(auth.user.roles ?? []).join(', ')}</p>
                     </div>
                     <button onClick={saveProfile} disabled={saving || profileName === auth.user.name} className="mt-4 w-full bg-brand-400 text-white rounded-xl py-2 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                        {saving ? 'Saving...' : 'Save Profile'}
+                        {saving ? t('prof.saving') : t('prof.save')}
                     </button>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6">
-                    <h3 className="font-semibold text-gray-900 mb-3">Change Password</h3>
+                    <h3 className="font-semibold text-gray-900 mb-3">{t('prof.change_pw')}</h3>
                     <form onSubmit={submitPassword} className="space-y-3">
                         {Object.values(errors).length > 0 && (
                             <div className="bg-red-50 text-red-600 text-sm rounded-xl p-3">{Object.values(errors)[0]}</div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('prof.current_pw')}</label>
                             <input type="password" value={data.current_password} onChange={e => setData('current_password', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('prof.new_pw')}</label>
                             <input type="password" value={data.password} onChange={e => setData('password', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required minLength={8} />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('prof.confirm_pw')}</label>
                             <input type="password" value={data.password_confirmation} onChange={e => setData('password_confirmation', e.target.value)} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-400" required minLength={8} />
                         </div>
 
                         <button type="submit" disabled={processing} className="w-full bg-brand-400 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                            {processing ? 'Updating...' : 'Update Password'}
+                            {processing ? t('prof.updating') : t('prof.update_pw')}
                         </button>
                     </form>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6">
-                    <h3 className="font-semibold text-gray-900 mb-3">Telegram Integration</h3>
+                    <h3 className="font-semibold text-gray-900 mb-3">{t('prof.telegram')}</h3>
                     {telegramStatus?.linked ? (
                         <div>
-                            <p className="text-sm text-green-600 mb-3">✅ Linked to Telegram (chat ID: {telegramStatus.chat_id})</p>
+                            <p className="text-sm text-green-600 mb-3">✅ {t('prof.linked')} {telegramStatus.chat_id})</p>
                             <button
                                 onClick={async () => {
-                                    if (!confirm('Unlink your Telegram account?')) return;
+                                    if (!confirm(t('prof.unlink_confirm'))) return;
                                     await fetch('/api/v1/telegram/unlink', { method: 'POST' });
                                     window.location.reload();
                                 }}
                                 className="bg-red-600 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-red-700"
                             >
-                                Unlink
+                                {t('prof.unlink')}
                             </button>
                         </div>
                     ) : (
                         <div>
-                            <p className="text-sm text-gray-600 mb-3">Connect your Telegram account to receive notifications and update work orders from Telegram.</p>
+                            <p className="text-sm text-gray-600 mb-3">{t('prof.connect_info')}</p>
                             {code ? (
                                 <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Send this code to the Engineering Buddy bot in Telegram:</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-2">{t('prof.send_code')}</p>
                                     <div className="bg-gray-100 rounded-xl p-4 text-center">
                                         <code className="text-2xl font-bold text-brand-600">{code}</code>
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-2">Expires in 10 minutes</p>
+                                    <p className="text-xs text-gray-400 mt-2">{t('prof.expires')}</p>
                                 </div>
                             ) : (
                                 <button onClick={generateCode} disabled={loading} className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                                    {loading ? 'Generating...' : 'Generate Link Code'}
+                                    {loading ? t('prof.generating') : t('prof.generate')}
                                 </button>
                             )}
                         </div>
@@ -231,28 +233,28 @@ export default function Profile({ auth, telegramStatus: initialTelegramStatus })
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6">
-                    <h3 className="font-semibold text-gray-900 mb-3">📱 Phone Notifications</h3>
+                    <h3 className="font-semibold text-gray-900 mb-3">{t('prof.phone_notif')}</h3>
                     {pushState === 'on' && (
                         <div>
-                            <p className="text-sm text-green-600 mb-3">✅ This device receives push notifications.</p>
+                            <p className="text-sm text-green-600 mb-3">{t('prof.push_on')}</p>
                             <button onClick={disablePush} disabled={pushBusy} className="bg-red-600 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-red-700 disabled:opacity-50">
-                                {pushBusy ? 'Working...' : 'Turn off'}
+                                {pushBusy ? t('prof.working') : t('prof.turn_off')}
                             </button>
                         </div>
                     )}
                     {pushState === 'off' && (
                         <div>
-                            <p className="text-sm text-gray-600 mb-3">Get approvals, reminders, and billing alerts as phone notifications, even with the app closed.</p>
+                            <p className="text-sm text-gray-600 mb-3">{t('prof.push_info')}</p>
                             <button onClick={enablePush} disabled={pushBusy} className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600 disabled:opacity-50">
-                                {pushBusy ? 'Enabling...' : 'Enable notifications'}
+                                {pushBusy ? t('prof.enabling') : t('prof.enable')}
                             </button>
                         </div>
                     )}
                     {pushState === 'denied' && (
-                        <p className="text-sm text-gray-500">Notifications are blocked for this site. Allow them in your browser/app settings to enable.</p>
+                        <p className="text-sm text-gray-500">{t('prof.denied')}</p>
                     )}
                     {pushState === 'unsupported' && (
-                        <p className="text-sm text-gray-500">Push notifications aren’t supported in this browser. Use Chrome on Android or the EngBuddy app.</p>
+                        <p className="text-sm text-gray-500">{t('prof.unsupported')}</p>
                     )}
                 </div>
             </div>

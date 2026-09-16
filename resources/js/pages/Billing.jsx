@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { CreditCard, CheckCircle2, AlertCircle } from 'lucide-react';
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout';
+import { useLang } from '../i18n';
 
 const PLAN_NAMES = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' };
 
@@ -20,6 +21,7 @@ const loadSnap = (isProduction, clientKey) =>
     });
 
 export default function Billing({ auth, subscription, midtrans, snap_token, errors }) {
+    const { t } = useLang();
     const plan = subscription?.plan ?? 'trial';
     const status = subscription?.status ?? 'trial';
     const plans = midtrans?.plans ?? { starter: 350000, professional: 850000, enterprise: 2000000 };
@@ -49,26 +51,26 @@ export default function Billing({ auth, subscription, midtrans, snap_token, erro
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Billing" />
+            <Head title={t('bill.title')} />
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto space-y-6">
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-900">Billing &amp; Plan</h2>
-                    <p className="text-sm text-gray-500 mt-1">Choose a plan to keep your facility running.</p>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('bill.title')}</h2>
+                    <p className="text-sm text-gray-500 mt-1">{t('bill.subtitle')}</p>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div className="flex items-center gap-3">
                         <div className="p-3 rounded-xl bg-brand-50 text-brand-600"><CreditCard size={22} /></div>
                         <div>
-                            <p className="text-lg font-semibold text-gray-900 capitalize">{plan} plan</p>
-                            <p className="text-sm text-gray-500">Status: <span className="font-medium capitalize text-gray-700">{status}</span></p>
+                            <p className="text-lg font-semibold text-gray-900 capitalize">{plan === 'trial' ? t('bill.trial') : plan} {t('bill.plan_w')}</p>
+                            <p className="text-sm text-gray-500">{t('bill.status_w')}: <span className="font-medium capitalize text-gray-700">{status}</span></p>
                         </div>
                     </div>
                 </div>
 
                 {!midtrans?.configured && (
                     <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 rounded-xl p-3 border border-amber-100">
-                        <AlertCircle size={16} /> Payment gateway is not configured yet. Add Midtrans keys to accept payments.
+                        <AlertCircle size={16} /> {t('bill.no_gateway')}
                     </div>
                 )}
 
@@ -88,7 +90,7 @@ export default function Billing({ auth, subscription, midtrans, snap_token, erro
                         >
                             <p className="font-semibold text-gray-900">{PLAN_NAMES[key] ?? key}</p>
                             <p className="text-2xl font-bold text-gray-900 mt-2">Rp {price.toLocaleString('id-ID')}</p>
-                            <p className="text-xs text-gray-500 mt-1">per month</p>
+                            <p className="text-xs text-gray-500 mt-1">{t('bill.per_month')}</p>
                         </button>
                     ))}
                 </div>
@@ -99,11 +101,11 @@ export default function Billing({ auth, subscription, midtrans, snap_token, erro
                     disabled={working || !midtrans?.configured}
                     className="w-full rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 text-sm transition-colors disabled:opacity-50"
                 >
-                    {working ? 'Opening payment…' : 'Subscribe now'}
+                    {working ? t('bill.opening') : t('bill.subscribe')}
                 </button>
 
                 <p className="text-sm text-gray-500 text-center">
-                    Payments are processed securely by <strong>Midtrans</strong> (QRIS, bank transfer, cards, e-wallets).
+                    {t('bill.secure')} <strong>Midtrans</strong> {t('bill.methods')}
                 </p>
             </motion.div>
         </AuthenticatedLayout>
