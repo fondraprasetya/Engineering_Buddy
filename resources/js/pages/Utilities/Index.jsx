@@ -2,14 +2,7 @@ import { useState, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import AuthenticatedLayout from '../../layouts/AuthenticatedLayout';
-
-const typeLabels = {
-    electricity: 'Electricity',
-    gas: 'Gas',
-    water: 'Water',
-    waste: 'Waste',
-    fuel: 'Fuel',
-};
+import { useLang } from '../../i18n';
 
 const typeIcons = {
     electricity: '⚡',
@@ -28,6 +21,15 @@ const ImportActivityIcon = () => (
 );
 
 export default function Index({ auth, records, types, totals, filters, importLogs }) {
+    const { lang, t } = useLang();
+    const locale = lang === 'id' ? 'id-ID' : 'en-US';
+    const typeLabels = {
+        electricity: t('ut.electricity'),
+        gas: t('ut.gas'),
+        water: t('ut.water'),
+        waste: t('ut.waste_t'),
+        fuel: t('ut.fuel'),
+    };
     const role = auth.user.roles?.[0] ?? 'employee';
     const isAdmin = ['eng-admin', 'chief-engineer', 'gm', 'super-admin'].includes(role);
     const fileInputRef = useRef(null);
@@ -76,44 +78,44 @@ export default function Index({ auth, records, types, totals, filters, importLog
 
     return (
         <AuthenticatedLayout auth={auth}>
-            <Head title="Daily Utilities" />
+            <Head title={t('ut.title_daily')} />
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h2 className="text-xl font-semibold text-gray-900">Daily Utilities</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('ut.title_daily')}</h2>
                     <div className="flex items-center gap-2">
                         {isAdmin && (
                             <>
-                                <button onClick={handleExport} className="bg-white border border-gray-300 text-gray-700 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-50">Export</button>
+                                <button onClick={handleExport} className="bg-white border border-gray-300 text-gray-700 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-50">{t('ut.export')}</button>
                                 <label className="bg-white border border-gray-300 text-gray-700 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-50 cursor-pointer">
-                                    {importing ? 'Importing...' : 'Import'}
+                                    {importing ? t('ut.importing') : t('ut.import')}
                                     <input type="file" ref={fileInputRef} accept=".csv" onChange={handleImport} className="hidden" />
                                 </label>
                             </>
                         )}
-                        <Link href="/utilities/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">New Record</Link>
+                        <Link href="/utilities/create" className="bg-brand-400 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-brand-600">{t('ut.new_record')}</Link>
                     </div>
                 </div>
 
                 {isAdmin && (
                     <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-wrap gap-3 items-end">
                         <div>
-                            <label className="block text-xs text-gray-500 mb-1">Type</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('ut.type')}</label>
                             <select value={filterType} onChange={e => setFilterType(e.target.value)} className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm">
-                                <option value="">All</option>
-                                {types.map(t => <option key={t} value={t}>{typeLabels[t]}</option>)}
+                                <option value="">{t('ut.all')}</option>
+                                {types.map(ty => <option key={ty} value={ty}>{typeLabels[ty]}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs text-gray-500 mb-1">From</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('ut.from')}</label>
                             <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm" />
                         </div>
                         <div>
-                            <label className="block text-xs text-gray-500 mb-1">To</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('ut.to')}</label>
                             <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} className="rounded-xl border border-gray-300 px-3 py-1.5 text-sm" />
                         </div>
-                        <button onClick={applyFilters} className="bg-gray-100 text-gray-700 rounded-xl px-4 py-1.5 text-sm hover:bg-brand-50">Filter</button>
+                        <button onClick={applyFilters} className="bg-gray-100 text-gray-700 rounded-xl px-4 py-1.5 text-sm hover:bg-brand-50">{t('ut.filter')}</button>
                         {(filterType || filterFrom || filterTo) && (
-                            <button onClick={clearFilters} className="text-red-600 text-sm hover:text-red-800 px-2 py-1.5">Clear</button>
+                            <button onClick={clearFilters} className="text-red-600 text-sm hover:text-red-800 px-2 py-1.5">{t('ut.clear')}</button>
                         )}
                     </div>
                 )}
@@ -126,7 +128,7 @@ export default function Index({ auth, records, types, totals, filters, importLog
                         >
                             <span className="flex items-center gap-2">
                                 <ImportActivityIcon />
-                                Import History
+                                {t('ut.import_history')}
                             </span>
                             <svg className={`w-4 h-4 transition-transform ${showLogs ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -142,14 +144,14 @@ export default function Index({ auth, records, types, totals, filters, importLog
                                                 {log.user?.name} · {new Date(log.created_at).toLocaleString()}
                                             </p>
                                             {log.status === 'success' && (
-                                                <p className="text-xs text-gray-500 mt-0.5">{log.imported} imported, {log.skipped} skipped</p>
+                                                <p className="text-xs text-gray-500 mt-0.5">{log.imported} {t('ut.imported')}, {log.skipped} {t('ut.skipped')}</p>
                                             )}
                                             {log.status === 'failed' && log.error_message && (
                                                 <p className="text-xs text-red-500 mt-0.5 truncate">{log.error_message}</p>
                                             )}
                                         </div>
                                         <span className={`shrink-0 ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${log.status === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                                            {log.status}
+                                            {t('ut.st_' + log.status)}
                                         </span>
                                     </div>
                                 ))}
@@ -160,24 +162,24 @@ export default function Index({ auth, records, types, totals, filters, importLog
 
                 {types.length > 0 && (
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        {types.map(t => {
-                            const total = totals[t];
-                            const active = filterType === t;
+                        {types.map(ty => {
+                            const total = totals[ty];
+                            const active = filterType === ty;
                             return (
                                 <button
-                                    key={t}
-                                    onClick={() => router.get('/utilities', { ...filters, type: active ? '' : t, page: '' }, { preserveState: true })}
+                                    key={ty}
+                                    onClick={() => router.get('/utilities', { ...filters, type: active ? '' : ty, page: '' }, { preserveState: true })}
                                     className={`rounded-2xl shadow-sm p-3 text-center cursor-pointer transition-all hover:scale-[1.03] ${active ? 'ring-2 ring-brand-400 bg-blue-50' : 'bg-white'}`}
                                 >
-                                    <span className="text-2xl">{typeIcons[t]}</span>
-                                    <p className="text-xs text-gray-500 mt-1">{typeLabels[t]}</p>
+                                    <span className="text-2xl">{typeIcons[ty]}</span>
+                                    <p className="text-xs text-gray-500 mt-1">{typeLabels[ty]}</p>
                                     {total ? (
                                         <>
                                             <p className="text-sm font-semibold text-gray-900">{Number(total.total_consumption).toLocaleString()} <span className="text-xs font-normal text-gray-400">{total.unit || ''}</span></p>
                                             {total.total_cost && <p className="text-xs text-gray-500">{formatCurrency(total.total_cost)}</p>}
                                         </>
                                     ) : (
-                                        <p className="text-sm text-gray-400">No data</p>
+                                        <p className="text-sm text-gray-400">{t('ut.no_data')}</p>
                                     )}
                                 </button>
                             );
@@ -186,7 +188,7 @@ export default function Index({ auth, records, types, totals, filters, importLog
                 )}
 
                 {records.data.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">No utility records found.</div>
+                    <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">{t('ut.no_records')}</div>
                 ) : (
                     <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.04 } } }} className="space-y-3">
                         {records.data.map((record) => (
@@ -195,13 +197,13 @@ export default function Index({ auth, records, types, totals, filters, importLog
                                     <div className="flex items-start gap-3">
                                         <span className="text-2xl">{typeIcons[record.type]}</span>
                                         <div>
-                                                <p className="text-sm text-gray-500">{typeLabels[record.type]} · {new Date(record.record_date).toLocaleDateString()} · {record.recorder?.name}</p>
+                                                <p className="text-sm text-gray-500">{typeLabels[record.type]} · {new Date(record.record_date).toLocaleDateString(locale)} · {record.recorder?.name}</p>
                                             <p className="text-sm text-gray-900 mt-1">
                                                 {Number(record.consumption).toLocaleString()} {record.unit}
                                             </p>
                                             {record.beginning_stand != null && record.ending_stand != null && (
                                                 <p className="text-xs text-gray-400 mt-0.5">
-                                                    Stand: {Number(record.beginning_stand).toLocaleString()} → {Number(record.ending_stand).toLocaleString()}
+                                                    {t('ut.stand')}: {Number(record.beginning_stand).toLocaleString()} → {Number(record.ending_stand).toLocaleString()}
                                                 </p>
                                             )}
                                             {record.notes && <p className="text-xs text-gray-500 mt-1">{record.notes}</p>}
@@ -214,7 +216,7 @@ export default function Index({ auth, records, types, totals, filters, importLog
                                     </div>
                                     <div className="text-right text-sm flex flex-col items-end gap-1">
                                         <p className="text-gray-700 font-medium">{formatCurrency(record.cost)}</p>
-                                        <Link href={`/utilities/${record.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">Edit</Link>
+                                        <Link href={`/utilities/${record.id}/edit`} className="text-xs text-brand-600 hover:text-brand-800">{t('ut.edit')}</Link>
                                     </div>
                                 </div>
                             </motion.div>
